@@ -1,16 +1,14 @@
 <script setup>
 import clientView from './views/clientView.vue';
-import clientNav from "./components/clientNav.vue"
+import sidenav from "./components/sideNav.vue"
 
 </script>
 <template>
   <nav>
-    <clientNav></clientNav>
+    <sidenav></sidenav>
   </nav>
-
-
   <main>
-    <clientView></clientView>
+    <RouterView></RouterView>
   </main>
 </template>
 
@@ -26,4 +24,6 @@ import clientNav from "./components/clientNav.vue"
   background-size: 100% 100%;
   background-origin: content-box;
 }
+
+
 </style>

@@ -1,26 +1,58 @@
+
 html {
-    background-color: rgba(27, 38, 54, 1);
+    background-color: var(--theme-color-1);
     text-align: center;
-    color: white;
+    color: rgb(223, 223, 223);
+}
+
+
+:root{
+    --theme-color-1: #1d2b3f;
+    --theme-color-2: #1f2937;
+    --theme-color-3: #2dd4bf; 
+    --border-color-1: #919191;
 }
 
 body {
     margin: 0;
     color: white;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+    font-family: "Inter var", sans-serif
 }
 
-@font-face {
-    font-family: "Nunito";
-    font-style: normal;
-    font-weight: 400;
-    src: local(""),
-    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
-}
+
 
 #app {
+    display: grid;
     height: 100vh;
+    margin: 0;
     text-align: center;
+    grid-template-areas:
+        "nav controls"
+        "nav main";
+        grid-auto-columns: max-content;
+}
+
+#app>nav {
+    grid-area: nav;
+    min-width: 50px;
+    padding: 0;
+    background-color: var(--theme-color-2);
+    height: 100%;
+}
+
+#app>main {
+    grid-area: main;
+    
+}
+
+h4{
+    
+    text-align: center;
+    font-size: 20px;
+    padding: 5px;
+    margin: 5px;
+}
+
+button{
+    cursor: pointer;
 }
