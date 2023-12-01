@@ -5,7 +5,3 @@
 export function AddClient(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
   return window['go']['main']['App']['AddClient'](arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
-
-export function EstablishConnection() {
-  return window['go']['main']['App']['EstablishConnection']();
-}

@@ -2,7 +2,6 @@ package machine
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -27,12 +26,11 @@ func InitClients() {
 
 }
 
-func CreateClientConnection(ctx context.Context, session string, ip string, mode string, policy string, authType string, user string, password string) string {
+func CreateClientConnection(ctx context.Context, session string, ip string, mode string, policy string, authType string, user string, password string) (int, error) {
 	endpoints, err := opcua.GetEndpoints(ctx, ip)
 
 	if err != nil {
-		fmt.Println(err)
-		return err.Error()
+		return 0, err
 	}
 
 	ep := opcua.SelectEndpoint(endpoints, policy, ua.MessageSecurityModeFromString(mode))
@@ -47,13 +45,11 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 	c, err := opcua.NewClient(ip, opts...)
 
 	if err != nil {
-		fmt.Println(err)
-		return err.Error()
+		return 0, err
 	}
 
 	if err := c.Connect(ctx); err != nil {
-		fmt.Println(err)
-		return err.Error()
+		return 0, err
 	}
 
 	cons++
@@ -63,26 +59,24 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 	m, err := monitor.NewNodeMonitor(c)
 
 	if err != nil {
-		fmt.Println(err)
+		return 0, err
 	}
 
 	go Keepalive(ctx, m, cons)
 
 	Clients[cons] = Connection{Client: c, Name: session}
 
-	fmt.Println(Clients)
-
-	return ""
+	return cons, nil
 
 }
 
-func Keepalive(ctx context.Context, m *monitor.NodeMonitor, id int) {
+func Keepalive(ctx context.Context, m *monitor.NodeMonitor, id int) error {
 	sub, err := m.Subscribe(ctx, &opcua.SubscriptionParameters{Interval: 10 * time.Second}, func(s *monitor.Subscription, dcm *monitor.DataChangeMessage) {
 		runtime.EventsEmit(ctx, "keepalive-message", id)
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	sub.AddMonitorItems(ctx, monitor.Request{NodeID: ua.MustParseNodeID("i=2258"), MonitoringMode: ua.MonitoringModeReporting, MonitoringParameters: &ua.MonitoringParameters{QueueSize: 1, DiscardOldest: true}})
@@ -90,6 +84,8 @@ func Keepalive(ctx context.Context, m *monitor.NodeMonitor, id int) {
 	defer cleanup(sub, ctx)
 
 	<-ctx.Done()
+
+	return nil
 }
 
 func cleanup(s *monitor.Subscription, ctx context.Context) {

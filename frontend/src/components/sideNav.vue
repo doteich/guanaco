@@ -14,7 +14,7 @@ const modal = ref(false)
 
 const clientOpts = ref({
     session: "",
-    ep: "           ",
+    ep: "",
     policy: "",
     mode: "",
     authType: "Anonymous",
@@ -42,6 +42,10 @@ function addClient(){
     <section class="side-nav">
         <h4>Clients</h4>
         <div>
+            <div v-for="client in store.getClients">
+                {{ client }}
+            </div>
+
             <Button icon="pi pi-plus" size="small" aria-label="Filter" @click="showModal" />
         </div>
         <Sidebar v-model:visible="modal" header="Client Options">
