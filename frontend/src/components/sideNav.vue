@@ -1,16 +1,19 @@
 <script setup>
 import { ref } from "vue"
-import {useClientStore} from "../store/clientStore"
+import { useClientStore } from "../store/clientStore"
 
 
 import Button from 'primevue/button';
 import Sidebar from 'primevue/sidebar';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
+import Chip from 'primevue/chip';
 
 const store = useClientStore()
 
 const modal = ref(false)
+const slimNav = ref(true)
+
 
 const clientOpts = ref({
     session: "",
@@ -31,23 +34,40 @@ function showModal() {
     modal.value ? modal.value = false : modal.value = true
 }
 
-function addClient(){
+function addClient() {
     store.addClient(clientOpts.value.session, clientOpts.value.ep, clientOpts.value.mode.type, clientOpts.value.policy.type, clientOpts.value.authType.type, clientOpts.value.username, clientOpts.value.password)
+    setTimeout(() => {
+        showModal()
+    }, 1000)
+
 }
+
+function toggleNav() {
+    slimNav.value ? slimNav.value = false : slimNav.value = true
+}
+
 
 </script>
 
 
 <template>
-    <section class="side-nav">
-        <h4>Clients</h4>
-        <div>
-            <div v-for="client in store.getClients">
-                {{ client }}
-            </div>
+    <section :class="[slimNav ? 'side-nav-slim' : 'side-nav']">
+        <img src="../assets/images/logo.png" class="logo">
+        <p v-if="!slimNav">Clients</p>
 
-            <Button icon="pi pi-plus" size="small" aria-label="Filter" @click="showModal" />
+
+        <div v-for="client in store.getClients">
+
+            <Chip>
+                <span class="client-label">{{ client.name[0] }}</span>
+                <span class="client-name" v-if="!slimNav">{{client.name}}</span>
+            </Chip>
         </div>
+
+
+        <Button icon="pi pi-plus" size="small" aria-label="Filter" @click="showModal" text rounded />
+        <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav" v-if="slimNav"></Button>
+        <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>
         <Sidebar v-model:visible="modal" header="Client Options">
             <div class="input-group">
                 <label for="session">Config Name</label>
@@ -81,7 +101,7 @@ function addClient(){
                 <InputText id="password" v-model="clientOpts.password" type="password" />
             </div>
 
-            <Button icon="pi pi-plus" label="Add" aria-label="Filter" @click="addClient()"  />
+            <Button icon="pi pi-plus" label="Add" aria-label="Filter" @click="addClient()" />
 
         </Sidebar>
 
@@ -90,10 +110,42 @@ function addClient(){
 </template>
 
 <style>
+.logo {
+    width: 60px;
+    background: rgb(196, 190, 255);
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.p-chip {
+    padding: 0 !important;
+}
+
 .side-nav {
     width: 150px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+.side-nav-slim {
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+.client-label {
+    background: green;
+    padding: 5px 10px;
+    border-radius: 70%;
+    justify-self: flex-start;
+}
+
+.client-name {
+    padding: 0 10px;
 }
 
 .input-group {
@@ -106,5 +158,10 @@ function addClient(){
 
 .input-group>label {
     font-family: monospace;
+}
+
+.nav-toggle {
+    margin-top: auto;
+    margin-bottom: 10%;
 }
 </style>

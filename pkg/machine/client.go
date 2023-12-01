@@ -26,6 +26,12 @@ func InitClients() {
 
 }
 
+func CloseClientConnection(ctx context.Context) {
+	for _, c := range Clients {
+		c.Client.Close(ctx)
+	}
+}
+
 func CreateClientConnection(ctx context.Context, session string, ip string, mode string, policy string, authType string, user string, password string) (int, error) {
 	endpoints, err := opcua.GetEndpoints(ctx, ip)
 
