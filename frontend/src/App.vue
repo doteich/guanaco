@@ -1,6 +1,16 @@
 <script setup>
+import { onMounted } from 'vue';
+import { useClientStore } from './store/clientStore';
+
+
 import clientView from './views/clientView.vue';
 import sidenav from "./components/sideNav.vue"
+
+const store = useClientStore()
+onMounted(() => {
+  store.listen()
+})
+
 
 </script>
 <template>
@@ -24,6 +34,4 @@ import sidenav from "./components/sideNav.vue"
   background-size: 100% 100%;
   background-origin: content-box;
 }
-
-
 </style>

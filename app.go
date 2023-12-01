@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/pkg/machine"
 	"context"
 	"fmt"
 
@@ -22,11 +23,13 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	machine.InitClients()
 }
 
 // Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+
+func (a *App) AddClient(session string, ip string, mode string, policy string, authType string, user string, password string) {
+	machine.CreateClientConnection(a.ctx, session, ip, mode, policy, authType, user, password)
 }
 
 func (a *App) EstablishConnection() string {
