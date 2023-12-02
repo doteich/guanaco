@@ -46,6 +46,17 @@ function toggleNav() {
     slimNav.value ? slimNav.value = false : slimNav.value = true
 }
 
+function toggleClient(id, status){
+    if (status == "disconnected"){
+        store.reconnect(id)
+    }else{
+        store.disconnectClient(id)
+    }
+
+   
+}
+
+
 
 </script>
 
@@ -58,8 +69,8 @@ function toggleNav() {
 
         <div v-for="client in store.getClients">
 
-            <Chip>
-                <span class="client-label">{{ client.name[0] }}</span>
+            <Chip class="client-chip" @click="toggleClient(client.id, client.status)" >
+                <span class="client-label" :style="[client.status == 'disconnected' ? 'backgroundColor: crimson' : 'backgroundColor: green']">{{ client.name[0] }}</span>
                 <span class="client-name" v-if="!slimNav">{{client.name}}</span>
             </Chip>
         </div>
@@ -146,6 +157,15 @@ function toggleNav() {
 
 .client-name {
     padding: 0 10px;
+}
+
+.client-chip{
+    cursor: pointer;
+    margin: 10px 0; 
+}
+.client-chip:hover{
+    border:1px solid var(--theme-color-3);
+    transform: scale(1.05);
 }
 
 .input-group {

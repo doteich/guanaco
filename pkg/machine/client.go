@@ -77,8 +77,8 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 }
 
 func Keepalive(ctx context.Context, m *monitor.NodeMonitor, id int) error {
-	sub, err := m.Subscribe(ctx, &opcua.SubscriptionParameters{Interval: 10 * time.Second}, func(s *monitor.Subscription, dcm *monitor.DataChangeMessage) {
-		runtime.EventsEmit(ctx, "keepalive-message", id)
+	sub, err := m.Subscribe(ctx, &opcua.SubscriptionParameters{Interval: 30 * time.Second}, func(s *monitor.Subscription, dcm *monitor.DataChangeMessage) {
+		runtime.EventsEmit(ctx, "client-message", id, "keepalive")
 	})
 
 	if err != nil {
@@ -96,4 +96,14 @@ func Keepalive(ctx context.Context, m *monitor.NodeMonitor, id int) error {
 
 func cleanup(s *monitor.Subscription, ctx context.Context) {
 	s.Unsubscribe(ctx)
+}
+
+func Disconnect(ctx context.Context, id int) {
+	Clients[id].Client.Close(ctx)
+
+	runtime.EventsEmit(ctx, "client-message", id, "disconnect")
+}
+func Reconnect(ctx context.Context, id int) {
+	Clients[id].Client.Connect(ctx)
+	runtime.EventsEmit(ctx, "client-message", id, "reconnect")
 }

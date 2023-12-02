@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { AddClient } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -17,15 +17,25 @@ export const useClientStore = defineStore("clientStore", {
         getClients(state) {
             return state.clients
         },
-        getToast(state){
+        getToast(state) {
             return state.toast
         }
     },
     actions: {
         listen() {
             console.log("start listening to events")
-            window.runtime.EventsOn("keepalive-message", (data) => {
-                console.log(data)
+            window.runtime.EventsOn("client-message", (id, event) => {
+                switch (event) {
+                    case 'disconnect':
+                        this.clients.filter(c => c.id == id)[0].status = "disconnected"
+                        break;
+                    case 'reconnect':
+                        this.clients.filter(c => c.id == id)[0].status = "connected"
+                        break;
+                    case 'keepalive':
+                        console.log(id, event)
+                        break;
+                }
             })
         },
         addClient(name, ep, mode, policy, auth, user, password) {
@@ -37,13 +47,21 @@ export const useClientStore = defineStore("clientStore", {
                         mode,
                         policy,
                         auth,
+                        status: "connected"
                     })
                 })
                 .catch((err) => {
                     this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
                     console.log(this.toast)
                 })
-        }
+        },
+        disconnectClient(id) {
+            DisconnectClient(id)
+
+        },
+        reconnect(id){
+            ReconnectClient(id)
+        }   
     }
 
 })
