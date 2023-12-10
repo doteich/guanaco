@@ -10,6 +10,10 @@ export function DisconnectClient(arg1) {
   return window['go']['main']['App']['DisconnectClient'](arg1);
 }
 
+export function GetClients() {
+  return window['go']['main']['App']['GetClients']();
+}
+
 export function ReconnectClient(arg1) {
   return window['go']['main']['App']['ReconnectClient'](arg1);
 }

@@ -3,6 +3,8 @@ import { onMounted, watch } from 'vue';
 import { useClientStore } from './store/clientStore';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
+import TabMenu from 'primevue/tabmenu';
+
 const toast = useToast();
 
 import clientView from './views/clientView.vue';
@@ -10,18 +12,38 @@ import sidenav from "./components/sideNav.vue"
 import { storeToRefs } from 'pinia';
 
 const store = useClientStore()
-const {getToast} = storeToRefs(store)
+const { getToast } = storeToRefs(store)
 
 
 onMounted(() => {
   store.listen()
+  store.getActiveConnections()
 })
 
-watch(getToast, (newToast) =>{
-  console.log(newToast)
-  toast.add({severity: newToast.severity, summary: newToast.summary, detail: newToast.detail, life: newToast.life})
+watch(getToast, (newToast) => {
+
+  toast.add({ severity: newToast.severity, summary: newToast.summary, detail: newToast.detail, life: newToast.life })
 })
 
+const items = [{
+  label: "Browse",
+  icon: "pi pi-list"
+}, {
+  label: "Monitor",
+  icon: "pi pi-eye"
+},
+  {
+  label: "Log",
+  icon: "pi pi-database"
+}, {
+  label: "Query Logs",
+  icon: "pi pi-chart-line"
+},{
+  label: "Save/Load Config",
+  icon: "pi pi-file"
+}
+
+]
 
 
 </script>
@@ -30,6 +52,9 @@ watch(getToast, (newToast) =>{
     <sidenav @click="show"></sidenav>
   </nav>
   <main>
+    <header>
+      <TabMenu :model="items" />
+    </header>
     <Toast />
     <RouterView></RouterView>
   </main>
