@@ -3,6 +3,7 @@ package main
 import (
 	"changeme/pkg/machine"
 	"context"
+	"fmt"
 )
 
 // App struct
@@ -19,6 +20,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
 	machine.InitClients()
 }
 
@@ -43,4 +45,11 @@ func (a *App) DisconnectClient(id int) {
 
 func (a *App) ReconnectClient(id int) {
 	machine.Reconnect(a.ctx, id)
+}
+
+func (a *App) GetClients() []machine.ClientInfos {
+	ac := machine.GetActiveConnection(a.ctx)
+
+	fmt.Println(ac)
+	return ac
 }

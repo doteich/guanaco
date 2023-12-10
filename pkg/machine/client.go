@@ -14,6 +14,13 @@ import (
 type Connection struct {
 	Client *opcua.Client
 	Name   string
+	Status string
+}
+
+type ClientInfos struct {
+	ClientId int
+	Name     string
+	Status   string
 }
 
 var (
@@ -70,7 +77,7 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 
 	go Keepalive(ctx, m, cons)
 
-	Clients[cons] = Connection{Client: c, Name: session}
+	Clients[cons] = Connection{Client: c, Name: session, Status: "connected"}
 
 	return cons, nil
 
@@ -101,9 +108,31 @@ func cleanup(s *monitor.Subscription, ctx context.Context) {
 func Disconnect(ctx context.Context, id int) {
 	Clients[id].Client.Close(ctx)
 
+	if entry, ok := Clients[id]; ok {
+		entry.Status = "disconnected"
+		Clients[id] = entry
+	}
+
 	runtime.EventsEmit(ctx, "client-message", id, "disconnect")
 }
 func Reconnect(ctx context.Context, id int) {
 	Clients[id].Client.Connect(ctx)
+
+	if entry, ok := Clients[id]; ok {
+		entry.Status = "connected"
+		Clients[id] = entry
+	}
+
 	runtime.EventsEmit(ctx, "client-message", id, "reconnect")
+}
+
+func GetActiveConnection(ctx context.Context) []ClientInfos {
+
+	var ac []ClientInfos
+
+	for k, c := range Clients {
+		ac = append(ac, ClientInfos{ClientId: k, Name: c.Name, Status: c.Status})
+	}
+
+	return ac
 }

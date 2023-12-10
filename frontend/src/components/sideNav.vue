@@ -1,59 +1,57 @@
 <script setup>
 import { ref } from "vue"
 import { useClientStore } from "../store/clientStore"
-
-
 import Button from 'primevue/button';
-import Sidebar from 'primevue/sidebar';
-import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
 import Chip from 'primevue/chip';
+import TieredMenu from 'primevue/tieredmenu';
+
+import clientSideBar from "./clientSideBar.vue";
+
 
 const store = useClientStore()
 
-const modal = ref(false)
 const slimNav = ref(true)
 
-
-const clientOpts = ref({
-    session: "",
-    ep: "",
-    policy: "",
-    mode: "",
-    authType: "Anonymous",
-    username: "",
-    password: ""
-})
-
-const modes = [{ type: "None" }, { type: "Sign" }, { type: "SignAndEncrypt" },]
-const policies = [{ type: "None" }, { type: "Basic256Sha256" }, { type: "Aes256Sha256RsaPss" }, { type: "Aes128Sha256RsaOaep" },]
-const auth = [{ type: "Anonymous" }, { type: "User&Password" }]
-
-
-function showModal() {
-    modal.value ? modal.value = false : modal.value = true
+let selectedClient={
+    id: "",
+    status: ""
 }
 
-function addClient() {
-    store.addClient(clientOpts.value.session, clientOpts.value.ep, clientOpts.value.mode.type, clientOpts.value.policy.type, clientOpts.value.authType.type, clientOpts.value.username, clientOpts.value.password)
-    setTimeout(() => {
-        showModal()
-    }, 1000)
+const items = [{
+    label: '',
+    icon: 'pi pi-refresh',
+    command: () => {
+        toggleClient()
+    }
+}]
 
-}
+const menu = ref();
+
+const toggle = (event, id, status) => {
+    selectedClient.id = id
+    selectedClient.status = status
+    if (status == "disconnected"){
+        items[0].label = "Connect"
+        items[0].icon  = "pi pi-play"
+    } else{
+        items[0].label = "Disconnect"
+        items[0].icon  = "pi pi-times"
+    }
+    menu.value.toggle(event);
+};
 
 function toggleNav() {
     slimNav.value ? slimNav.value = false : slimNav.value = true
 }
 
-function toggleClient(id, status){
-    if (status == "disconnected"){
-        store.reconnect(id)
-    }else{
-        store.disconnectClient(id)
+function toggleClient() {
+    if (selectedClient.status == "disconnected") {
+        store.reconnect(selectedClient.id)
+    } else {
+        store.disconnectClient(selectedClient.id)
     }
 
-   
+
 }
 
 
@@ -67,55 +65,22 @@ function toggleClient(id, status){
         <p v-if="!slimNav">Clients</p>
 
 
-        <div v-for="client in store.getClients">
+        <div v-for="client in store.getClients" aria-haspopup="true" aria-controls="overlay_tmenu" @contextmenu.prevent="toggle($event, client.id, client.status)">
 
-            <Chip class="client-chip" @click="toggleClient(client.id, client.status)" >
-                <span class="client-label" :style="[client.status == 'disconnected' ? 'backgroundColor: crimson' : 'backgroundColor: green']">{{ client.name[0] }}</span>
-                <span class="client-name" v-if="!slimNav">{{client.name}}</span>
+            <Chip class="client-chip">
+                <span class="client-label"
+                    :style="[client.status == 'disconnected' ? 'backgroundColor: crimson' : 'backgroundColor: green']">{{
+                        client.name[0] }}</span>
+                <span class="client-name" v-if="!slimNav">{{ client.name }}</span>
             </Chip>
         </div>
 
+        <TieredMenu ref="menu" id="overlay_tmenu" :model="items" popup />
 
-        <Button icon="pi pi-plus" size="small" aria-label="Filter" @click="showModal" text rounded />
+        <clientSideBar></clientSideBar>
         <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav" v-if="slimNav"></Button>
         <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>
-        <Sidebar v-model:visible="modal" header="Client Options">
-            <div class="input-group">
-                <label for="session">Config Name</label>
-                <InputText id="session" v-model="clientOpts.session" placeholder="OPC XY" />
-            </div>
-            <div class="input-group">
-                <label for="endpoint">Endpoint</label>
-                <InputText id="endpoint" v-model="clientOpts.ep" placeholder="opc.tcp://127.0.0.1:4840" />
-            </div>
-            <div class="input-group">
-                <label for="mode">Security Mode</label>
-                <Dropdown v-model="clientOpts.mode" :options="modes" showClear optionLabel="type" placeholder="Mode"
-                    id="mode" />
-            </div>
-            <div class="input-group">
-                <label for="policy">Security Policy</label>
-                <Dropdown v-model="clientOpts.policy" :options="policies" showClear optionLabel="type" placeholder="Policy"
-                    id="policy" />
-            </div>
-            <div class="input-group">
-                <label for="auth">Authentication</label>
-                <Dropdown v-model="clientOpts.authType" :options="auth" showClear optionLabel="type" placeholder="Auth"
-                    id="auth" />
-            </div>
-            <div class="input-group" v-if="clientOpts.authType.type == 'User&Password'">
-                <label for="username">Username</label>
-                <InputText id="username" v-model="clientOpts.username" />
-            </div>
-            <div class="input-group" v-if="clientOpts.authType.type == 'User&Password'">
-                <label for="password">Password</label>
-                <InputText id="password" v-model="clientOpts.password" type="password" />
-            </div>
-
-            <Button icon="pi pi-plus" label="Add" aria-label="Filter" @click="addClient()" />
-
-        </Sidebar>
-
+      
 
     </section>
 </template>
@@ -159,12 +124,13 @@ function toggleClient(id, status){
     padding: 0 10px;
 }
 
-.client-chip{
+.client-chip {
     cursor: pointer;
-    margin: 10px 0; 
+    margin: 10px 0;
 }
-.client-chip:hover{
-    border:1px solid var(--theme-color-3);
+
+.client-chip:hover {
+    border: 1px solid var(--theme-color-3);
     transform: scale(1.05);
 }
 

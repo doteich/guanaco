@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -23,7 +23,6 @@ export const useClientStore = defineStore("clientStore", {
     },
     actions: {
         listen() {
-            console.log("start listening to events")
             window.runtime.EventsOn("client-message", (id, event) => {
                 switch (event) {
                     case 'disconnect':
@@ -37,6 +36,7 @@ export const useClientStore = defineStore("clientStore", {
                         break;
                 }
             })
+
         },
         addClient(name, ep, mode, policy, auth, user, password) {
             AddClient(name, ep, mode, policy, auth, user, password)
@@ -52,16 +52,27 @@ export const useClientStore = defineStore("clientStore", {
                 })
                 .catch((err) => {
                     this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
-                    console.log(this.toast)
                 })
         },
         disconnectClient(id) {
             DisconnectClient(id)
 
         },
-        reconnect(id){
+        reconnect(id) {
             ReconnectClient(id)
-        }   
+        },
+        getActiveConnections() {
+            GetClients()
+                .then(res => {
+                    res.forEach((client) => {
+                        this.clients.push({
+                            id: client.ClientId,
+                            name: client.Name,
+                            status: client.Status
+                        })
+                    })
+                })
+        }
     }
 
 })
