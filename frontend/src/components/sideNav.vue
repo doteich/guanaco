@@ -12,7 +12,7 @@ const store = useClientStore()
 
 const slimNav = ref(true)
 
-let selectedClient={
+let selectedClient = {
     id: "",
     status: ""
 }
@@ -30,12 +30,12 @@ const menu = ref();
 const toggle = (event, id, status) => {
     selectedClient.id = id
     selectedClient.status = status
-    if (status == "disconnected"){
+    if (status == "disconnected") {
         items[0].label = "Connect"
-        items[0].icon  = "pi pi-play"
-    } else{
+        items[0].icon = "pi pi-play"
+    } else {
         items[0].label = "Disconnect"
-        items[0].icon  = "pi pi-times"
+        items[0].icon = "pi pi-times"
     }
     menu.value.toggle(event);
 };
@@ -50,8 +50,10 @@ function toggleClient() {
     } else {
         store.disconnectClient(selectedClient.id)
     }
+}
 
-
+function sClient(id) {
+    store.selectClient(id)
 }
 
 
@@ -64,12 +66,12 @@ function toggleClient() {
         <img src="../assets/images/logo.png" class="logo">
         <p v-if="!slimNav">Clients</p>
 
-
-        <div v-for="client in store.getClients" aria-haspopup="true" aria-controls="overlay_tmenu" @contextmenu.prevent="toggle($event, client.id, client.status)">
+        <div v-for="client in store.getClients" aria-haspopup="true" aria-controls="overlay_tmenu"
+            @contextmenu.prevent="toggle($event, client.id, client.status)" @click="sClient(client.id)">
 
             <Chip class="client-chip">
-                <span class="client-label"
-                    :style="[client.status == 'disconnected' ? 'backgroundColor: crimson' : 'backgroundColor: green']">{{
+                <span :style="[client.status == 'disconnected' ? 'backgroundColor: crimson' : 'backgroundColor: green']"
+                    :class="[client.selected ? 'client-label-selected' : 'client-label']">{{
                         client.name[0] }}</span>
                 <span class="client-name" v-if="!slimNav">{{ client.name }}</span>
             </Chip>
@@ -80,7 +82,7 @@ function toggleClient() {
         <clientSideBar></clientSideBar>
         <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav" v-if="slimNav"></Button>
         <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>
-      
+
 
     </section>
 </template>
@@ -114,10 +116,17 @@ function toggleClient() {
 }
 
 .client-label {
-    background: green;
     padding: 5px 10px;
     border-radius: 70%;
     justify-self: flex-start;
+}
+
+.client-label-selected {
+    padding: 5px 10px;
+    border-radius: 70%;
+    transform: scale(1.05);
+    justify-self: flex-start;
+    border: 1px solid salmon;
 }
 
 .client-name {

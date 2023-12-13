@@ -48,6 +48,7 @@ main{
 #app>main>header {
     grid-area: controls;
     width: 100%;
+    background: var(--theme-color-2);
 
 }
 

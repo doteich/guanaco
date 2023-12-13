@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { AddClient, DisconnectClient, ReconnectClient, GetClients } from "../../wailsjs/go/main/App"
 
 
@@ -10,7 +10,9 @@ export const useClientStore = defineStore("clientStore", {
             summary: "",
             detail: "",
             life: 3000,
-        }
+        },
+        selectedClient: -1,
+        
 
     }),
     getters: {
@@ -38,7 +40,7 @@ export const useClientStore = defineStore("clientStore", {
             })
 
         },
-        addClient(name, ep, mode, policy, auth, user, password) {
+        async addClient(name, ep, mode, policy, auth, user, password) {
             AddClient(name, ep, mode, policy, auth, user, password)
                 .then((data) => {
                     this.clients.push({
@@ -54,14 +56,14 @@ export const useClientStore = defineStore("clientStore", {
                     this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
                 })
         },
-        disconnectClient(id) {
+        async disconnectClient(id) {
             DisconnectClient(id)
 
         },
-        reconnect(id) {
+        async reconnect(id) {
             ReconnectClient(id)
         },
-        getActiveConnections() {
+        async getActiveConnections() {
             GetClients()
                 .then(res => {
                     res.forEach((client) => {
@@ -72,6 +74,20 @@ export const useClientStore = defineStore("clientStore", {
                         })
                     })
                 })
+        },
+        selectClient(id){
+          
+                if (this.selectedClient > -1){
+                    let s = this.clients.find(c => c.id == this.selectedClient)
+                    s.selected = false
+                    this.selectedClient = -1
+                }
+
+                let c = this.clients.find(c => c.id == id)
+                if(c){
+                    c.selected = true 
+                    this.selectedClient = id 
+                }
         }
     }
 
