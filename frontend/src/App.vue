@@ -4,8 +4,10 @@ import { useClientStore } from './store/clientStore';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import TabMenu from 'primevue/tabmenu';
+import { useRouter } from 'vue-router';
 
 const toast = useToast();
+const router = useRouter()
 
 import clientView from './views/clientView.vue';
 import sidenav from "./components/sideNav.vue"
@@ -18,6 +20,12 @@ const { getToast } = storeToRefs(store)
 onMounted(() => {
   store.listen()
   store.getActiveConnections()
+  setTimeout(()=>{
+    if (store.getClients.length < 1){
+      store.addClient("SESSION", "opc.tcp://192.168.178.108:49320", "None", "None", "Anonymous")
+    }
+  },3000)
+  
 })
 
 watch(getToast, (newToast) => {
@@ -27,18 +35,21 @@ watch(getToast, (newToast) => {
 
 const items = [{
   label: "Browse",
-  icon: "pi pi-list"
+  icon: "pi pi-list",
+  command: (()=>{
+    router.push("/browse")
+  })
 }, {
   label: "Monitor",
   icon: "pi pi-eye"
 },
-  {
+{
   label: "Log",
   icon: "pi pi-database"
 }, {
   label: "Query Logs",
   icon: "pi pi-chart-line"
-},{
+}, {
   label: "Save/Load Config",
   icon: "pi pi-file"
 }

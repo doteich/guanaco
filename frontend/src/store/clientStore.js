@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -12,7 +12,14 @@ export const useClientStore = defineStore("clientStore", {
             life: 3000,
         },
         selectedClient: -1,
-        
+        browseResults: [{
+            name: "Root",
+            nodeId: "i=84",
+            type: "Object",
+            icon: "pi-folder",
+            id: "0",
+            childs: []
+        }]
 
     }),
     getters: {
@@ -21,6 +28,33 @@ export const useClientStore = defineStore("clientStore", {
         },
         getToast(state) {
             return state.toast
+        },
+        getBrowseResults(state) {
+
+            function getChilds(childs) {
+                let nodes = []
+
+                childs.forEach((child) => {
+
+
+                    nodes.push({
+                        id: child.id,
+                        nodeId: child.nodeId,
+                        name: child.name,
+                        icon: child.icon
+                    })
+                    if (child.childs.length < 1) {
+                        return
+                    } else {
+                        nodes.push(...getChilds(child.childs))
+                    }
+                })
+                return nodes
+            }
+
+            let nodes = getChilds(state.browseResults)
+            return nodes
+
         }
     },
     actions: {
@@ -75,19 +109,68 @@ export const useClientStore = defineStore("clientStore", {
                     })
                 })
         },
-        selectClient(id){
-          
-                if (this.selectedClient > -1){
-                    let s = this.clients.find(c => c.id == this.selectedClient)
-                    s.selected = false
-                    this.selectedClient = -1
+        selectClient(id) {
+
+            if (this.selectedClient > -1) {
+                let s = this.clients.find(c => c.id == this.selectedClient)
+                s.selected = false
+                this.selectedClient = -1
+            }
+
+            let c = this.clients.find(c => c.id == id)
+            if (c) {
+                c.selected = true
+                this.selectedClient = id
+            }
+        },
+        Browse(nodeId, index) {
+            if (this.selectedClient == -1) {
+                this.toast = {
+                    severity: "warn",
+                    summary: "No Client Selected",
+                    detail: "Please select a connected client from the list",
+                    life: 3000,
+                }
+                return
+            }
+            AppBrowse(this.selectedClient, nodeId)
+            .then((res)=>{
+                let idc = index.split(".").map(Number)
+                let branch =  this.browseResults
+
+                for (const level of idc) {
+                    if (branch[level] && branch[level].childs) {
+                        branch = branch[level].childs;
+                    } else {
+                        // Handle the case where the given id is not valid
+                        return;
+                    }
                 }
 
-                let c = this.clients.find(c => c.id == id)
-                if(c){
-                    c.selected = true 
-                    this.selectedClient = id 
+                console.log(idc)
+                console.log(branch)
+
+                res.forEach((node, i)=>{
+                    branch.push({
+                        name: node.Name,
+                        nodeId: node.NodeId,
+                        type: node.NodeTyp,
+                        icon: "pi-folder",
+                        id: index + "." + i,
+                        childs: []
+                    })
+                })
+                //this.browseResults[0].childs = res
+            })
+            .catch((err)=>{
+                this.toast = {
+                    severity: "error",
+                    summary: "Browse Error",
+                    detail: err,
+                    life: 3000,
                 }
+                console.error(err)
+            })
         }
     }
 

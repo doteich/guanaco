@@ -4,6 +4,8 @@ import {machine} from '../models';
 
 export function AddClient(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string):Promise<number>;
 
+export function AppBrowse(arg1:number,arg2:string):Promise<Array<machine.BrowseResult>>;
+
 export function DisconnectClient(arg1:number):Promise<void>;
 
 export function GetClients():Promise<Array<machine.ClientInfos>>;

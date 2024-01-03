@@ -6,6 +6,10 @@ export function AddClient(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
   return window['go']['main']['App']['AddClient'](arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
+export function AppBrowse(arg1, arg2) {
+  return window['go']['main']['App']['AppBrowse'](arg1, arg2);
+}
+
 export function DisconnectClient(arg1) {
   return window['go']['main']['App']['DisconnectClient'](arg1);
 }

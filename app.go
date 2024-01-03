@@ -3,7 +3,8 @@ package main
 import (
 	"changeme/pkg/machine"
 	"context"
-	"fmt"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -32,6 +33,7 @@ func (a *App) AddClient(session string, ip string, mode string, policy string, a
 	id, err := machine.CreateClientConnection(a.ctx, session, ip, mode, policy, authType, user, password)
 
 	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return 0, err
 	}
 
@@ -49,7 +51,15 @@ func (a *App) ReconnectClient(id int) {
 
 func (a *App) GetClients() []machine.ClientInfos {
 	ac := machine.GetActiveConnection(a.ctx)
-
-	fmt.Println(ac)
 	return ac
+}
+
+func (a *App) AppBrowse(id int, nodeId string) ([]machine.BrowseResult, error) {
+	res, err := machine.BrowseNodes(a.ctx, id, nodeId)
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+
+	return res, nil
 }
