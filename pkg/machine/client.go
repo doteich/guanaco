@@ -2,6 +2,8 @@ package machine
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -48,11 +50,28 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 
 	ep := opcua.SelectEndpoint(endpoints, policy, ua.MessageSecurityModeFromString(mode))
 
+	if ep == nil {
+		err := errors.New("no valid endpoint for provided config found")
+		return 0, err
+	}
+
 	opts := []opcua.Option{
-		opcua.AuthAnonymous(),
-		opcua.SecurityMode(ua.MessageSecurityModeNone),
+		opcua.SecurityMode(ua.MessageSecurityModeFromString(mode)),
 		opcua.SecurityPolicy(policy),
-		opcua.SecurityFromEndpoint(ep, ua.UserTokenTypeAnonymous),
+	}
+
+	switch authType {
+	case "User&Password":
+		opts = append(opts, opcua.AuthUsername(user, password))
+		opts = append(opts, opcua.SecurityFromEndpoint(ep, ua.UserTokenTypeUserName))
+	case "Anonymous":
+		opts = append(opts, opcua.AuthAnonymous())
+		opts = append(opts, opcua.SecurityFromEndpoint(ep, ua.UserTokenTypeAnonymous))
+	}
+
+	if policy != "None" {
+		opts = append(opts, opcua.CertificateFile("./certs/cert.pem"))
+		opts = append(opts, opcua.PrivateKeyFile("./certs/key.pem"))
 	}
 
 	c, err := opcua.NewClient(ip, opts...)
@@ -62,6 +81,7 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 	}
 
 	if err := c.Connect(ctx); err != nil {
+		fmt.Println(err)
 		return 0, err
 	}
 

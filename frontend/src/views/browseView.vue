@@ -4,71 +4,86 @@ import { useClientStore } from '../store/clientStore';
 const store = useClientStore()
 
 
-function browseNode(nodeid, id){
+function browseNode(nodeid, id) {
     store.Browse(nodeid, id)
 }
 
 </script>
 
 <template>
-    <section>
+    <section class="browser">
 
-        <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id)" :style="{ 'margin-left': node.id.length * 5 + 'px' }">
-            <div>
-                <i :class="'pi ' + node.icon"></i>
-                <span>{{ node.id }}</span>
+        <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id)"
+            :style="{ 'margin-left': node.id.split('.').length * 20 + 'px' }">
+
+            <i class="pi pi-chevron-down" v-if="node.isExpanded"></i>
+            <i class="pi pi-chevron-right turn" v-else></i>
+            <div class="browse-node-content">
+                <div>
+                    <i :class="'pi ' + node.icon" :style="{'color': node.color}"></i>
+                </div>
+                <p> <span>{{ node.name }}</span></p>
             </div>
-            <p> <span>{{ node.name }}</span></p>
+
         </div>
+
     </section>
 </template>
 <style>
-
-
+.browser {
+    margin-top: 30px;
+}
 
 .browse-node {
     display: flex;
     align-items: center;
     width: fit-content;
-    height: 2.5em;
+    height: 2.0em;
     cursor: pointer;
     padding: 0 0 0 0;
-    margin: 10px; 
-    background-color: var(--theme-color-2);
-    border-bottom: 1px solid var(--theme-color-3);
-    
-
-}
-
-.browse-node>div {
-    color: rgb(41, 41, 39);
+    margin: 10px;
     background-color: var(--theme-color-1);
-    padding: 0 15px;
-    height: 100%;
-    font-size: 20px;
-    display: flex;
-    border-top: 1px solid var(--theme-color-3);
-    border-left: 1px solid var(--theme-color-3);
-    border-right: 1px solid var(--theme-color-3);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    
+    width: 33%;
 
 }
-.browse-node>div>i{
+
+.browse-node>i {
+    margin-right: 5px;
+}
+
+.browse-node:hover>.turn {
+    transform: rotate(90deg);
+}
+
+i {
     color: var(--theme-color-3)
 }
 
-
-.browse-node>div>span{
-    font-size: 11px;
-    color: var(--border-color-1)
+.browse-node-content {
+    border-bottom: 1px solid var(--theme-color-3);
+    display: flex;
+    align-items: center;
+    margin: 0;
+    height: 100%;
+    min-width: fit-content;
+    background: var(--theme-color-2);
+    width: 100%;
 }
 
-.browse-node>p {
-    margin-left: 5px;
-    font-size: 14px;
-    padding: 5px;
-    min-width: 100px;
+.browse-node-content>div {
+    padding: 10px 12px;
+    border-top: 1px solid var(--theme-color-3);
+    border-right: 1px solid var(--theme-color-3);
+    border-left: 1px solid var(--theme-color-3);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.browse-node-content>p {
+    padding: 0 20px;
 }
 </style>

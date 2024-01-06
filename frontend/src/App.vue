@@ -20,12 +20,12 @@ const { getToast } = storeToRefs(store)
 onMounted(() => {
   store.listen()
   store.getActiveConnections()
-  setTimeout(()=>{
-    if (store.getClients.length < 1){
-      store.addClient("SESSION", "opc.tcp://192.168.178.108:49320", "None", "None", "Anonymous")
+  setTimeout(() => {
+    if (store.getClients.length < 1) {
+      store.addClient("SESSION", "opc.tcp://192.168.178.108:49320", "SignAndEncrypt", "Basic256Sha256", "Anonymous")
     }
-  },3000)
-  
+  }, 3000)
+
 })
 
 watch(getToast, (newToast) => {
@@ -36,23 +36,29 @@ watch(getToast, (newToast) => {
 const items = [{
   label: "Browse",
   icon: "pi pi-list",
-  command: (()=>{
+  command: (() => {
     router.push("/browse")
   })
-}, {
-  label: "Monitor",
-  icon: "pi pi-eye"
-},
-{
-  label: "Log",
-  icon: "pi pi-database"
-}, {
-  label: "Query Logs",
-  icon: "pi pi-chart-line"
-}, {
-  label: "Save/Load Config",
-  icon: "pi pi-file"
-}
+  },
+  {
+    label: "Monitor",
+    icon: "pi pi-eye"
+  },
+  {
+    label: "Log",
+    icon: "pi pi-database"
+  },
+  {
+    label: "Query Logs",
+    icon: "pi pi-chart-line"
+  }, {
+    label: "Save/Load Config",
+    icon: "pi pi-file"
+  },
+  {
+    label: "Certs",
+    icon: "pi pi-credit-card"
+  }
 
 ]
 

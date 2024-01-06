@@ -21,7 +21,9 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-
+	if err := machine.CreateKeyPair(); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
 	machine.InitClients()
 }
 

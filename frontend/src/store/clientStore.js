@@ -35,14 +35,18 @@ export const useClientStore = defineStore("clientStore", {
                 let nodes = []
 
                 childs.forEach((child) => {
-
-
-                    nodes.push({
+                    let data = {
                         id: child.id,
                         nodeId: child.nodeId,
                         name: child.name,
-                        icon: child.icon
-                    })
+                        icon: child.icon,
+                        color: child.color,
+                        isExpanded: false
+                    }
+
+                    child.childs.length > 0 ? data.isExpanded = true : ""
+
+                    nodes.push(data)
                     if (child.childs.length < 1) {
                         return
                     } else {
@@ -138,6 +142,8 @@ export const useClientStore = defineStore("clientStore", {
                 let idc = index.split(".").map(Number)
                 let branch =  this.browseResults
 
+                console.log(res)
+
                 for (const level of idc) {
                     if (branch[level] && branch[level].childs) {
                         branch = branch[level].childs;
@@ -146,20 +152,34 @@ export const useClientStore = defineStore("clientStore", {
                         return;
                     }
                 }
-
-                console.log(idc)
-                console.log(branch)
+                if (branch.length > 0){
+                    
+                   branch.length = 0
+                   return
+                }
 
                 res.forEach((node, i)=>{
-                    branch.push({
+
+                    let data = {
                         name: node.Name,
                         nodeId: node.NodeId,
                         type: node.NodeTyp,
                         icon: "pi-folder",
                         id: index + "." + i,
                         childs: []
-                    })
+                    }
+
+                    if (node.Type == "NodeClassObject"){
+                        data.icon = "pi-folder"
+                        data.color = "var(--theme-color-3)"
+                    }else{
+                        data.icon = "pi-tag"
+                        data.color = "rgb(231, 9, 120)" 
+                    }
+
+                    branch.push(data)
                 })
+                
                 //this.browseResults[0].childs = res
             })
             .catch((err)=>{
