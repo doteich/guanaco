@@ -1,11 +1,35 @@
 <script setup>
+import { ref } from "vue"
+
 import { useClientStore } from '../store/clientStore';
+import Button from 'primevue/button';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+
 
 const store = useClientStore()
 
+const selectedVars = ref([])
 
-function browseNode(nodeid, id) {
+const nodeToDrop = ref()
+
+function browseNode(nodeid, id, type) {
+    if (type == "NodeClassVariable") {
+        return
+    }
     store.Browse(nodeid, id)
+}
+
+function selectNode(name, nodeId) {
+    selectedVars.value.push({
+        name,
+        nodeId
+    })
+
+}
+
+function dropNode(){
+    selectedVars.value = selectedVars.value.filter(el => el.nodeId != nodeToDrop.value.nodeId)
 }
 
 </script>
@@ -13,20 +37,36 @@ function browseNode(nodeid, id) {
 <template>
     <section class="browser">
 
-        <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id)"
+        <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id, node.type)"
             :style="{ 'margin-left': node.id.split('.').length * 20 + 'px' }">
 
             <i class="pi pi-chevron-down" v-if="node.isExpanded"></i>
             <i class="pi pi-chevron-right turn" v-else></i>
             <div class="browse-node-content">
                 <div>
-                    <i :class="'pi ' + node.icon" :style="{'color': node.color}"></i>
+                    <i :class="'pi ' + node.icon" :style="{ 'color': node.color }"></i>
                 </div>
                 <p> <span>{{ node.name }}</span></p>
+                <Button icon="pi pi-plus" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)" text
+                    v-if="node.type == 'NodeClassVariable'" />
             </div>
 
         </div>
+        <div class="browse-actions-bar" v-if="selectedVars.length > 0">
 
+            <div class="selection">
+                <DataTable :value="selectedVars" tableStyle="min-width: 5rem" v-model:selection="nodeToDrop" selectionMode="single" dataKey="name" @rowSelect="dropNode()">
+                    <Column field="name" header="Selection"></Column>
+
+                </DataTable>
+            </div>
+
+            <Button icon="pi pi-eye" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)"
+                label="Monitor Selection" raised />
+            <Button icon="pi pi-file" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)"
+                label="Export Node-IDs" raised />
+
+        </div>
     </section>
 </template>
 <style>
@@ -43,7 +83,7 @@ function browseNode(nodeid, id) {
     padding: 0 0 0 0;
     margin: 10px;
     background-color: var(--theme-color-1);
-    
+
     width: 33%;
 
 }
@@ -85,5 +125,58 @@ i {
 
 .browse-node-content>p {
     padding: 0 20px;
+}
+
+.browse-node-content>button {
+    margin-left: auto;
+    margin-right: 10px;
+    padding: 1px 3px;
+}
+
+.browse-actions-bar {
+    position: fixed;
+    right: 2vw;
+    bottom: 2vh;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  
+
+}
+
+.browse-actions-bar>button {
+    margin: 5px 0;
+    animation-name: fadein;
+    animation-duration: 1s;
+}
+
+table {
+    font-size: 0.75em !important;
+    background-color: var(--theme-color-1); 
+}
+
+th{
+    background-color: var(--theme-color-1) !important;
+}
+
+td{
+    background-color: var(--theme-color-1);
+}
+
+.selection{
+    max-height: 70vh !important;
+    overflow-y: scroll;
+    
+}
+
+
+@keyframes fadein {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
 }
 </style>

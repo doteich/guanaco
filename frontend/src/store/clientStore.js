@@ -41,6 +41,7 @@ export const useClientStore = defineStore("clientStore", {
                         name: child.name,
                         icon: child.icon,
                         color: child.color,
+                        type: child.type, 
                         isExpanded: false
                     }
 
@@ -163,7 +164,7 @@ export const useClientStore = defineStore("clientStore", {
                     let data = {
                         name: node.Name,
                         nodeId: node.NodeId,
-                        type: node.NodeTyp,
+                        type: node.Type,
                         icon: "pi-folder",
                         id: index + "." + i,
                         childs: []
