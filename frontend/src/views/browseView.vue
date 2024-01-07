@@ -28,8 +28,12 @@ function selectNode(name, nodeId) {
 
 }
 
-function dropNode(){
+function dropNode() {
     selectedVars.value = selectedVars.value.filter(el => el.nodeId != nodeToDrop.value.nodeId)
+}
+
+function exportSelection(){
+    store.ExportBrowsedNodes(selectedVars.value.map(el => el.nodeId))
 }
 
 </script>
@@ -55,15 +59,15 @@ function dropNode(){
         <div class="browse-actions-bar" v-if="selectedVars.length > 0">
 
             <div class="selection">
-                <DataTable :value="selectedVars" tableStyle="min-width: 5rem" v-model:selection="nodeToDrop" selectionMode="single" dataKey="name" @rowSelect="dropNode()">
+                <DataTable :value="selectedVars" tableStyle="min-width: 5rem" v-model:selection="nodeToDrop"
+                    selectionMode="single" dataKey="name" @rowSelect="dropNode()">
                     <Column field="name" header="Selection"></Column>
 
                 </DataTable>
             </div>
 
-            <Button icon="pi pi-eye" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)"
-                label="Monitor Selection" raised />
-            <Button icon="pi pi-file" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)"
+            <Button icon="pi pi-eye" size="small" aria-label="Add" label="Monitor Selection" raised />
+            <Button icon="pi pi-file" size="small" aria-label="Add" @click="exportSelection()"
                 label="Export Node-IDs" raised />
 
         </div>
@@ -140,7 +144,7 @@ i {
     display: flex;
     flex-direction: column;
     max-height: 80vh;
-  
+
 
 }
 
@@ -152,21 +156,21 @@ i {
 
 table {
     font-size: 0.75em !important;
-    background-color: var(--theme-color-1); 
-}
-
-th{
-    background-color: var(--theme-color-1) !important;
-}
-
-td{
     background-color: var(--theme-color-1);
 }
 
-.selection{
+th {
+    background-color: var(--theme-color-1) !important;
+}
+
+td {
+    background-color: var(--theme-color-1);
+}
+
+.selection {
     max-height: 70vh !important;
     overflow-y: scroll;
-    
+
 }
 
 

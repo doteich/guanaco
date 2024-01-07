@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -192,6 +192,9 @@ export const useClientStore = defineStore("clientStore", {
                 }
                 console.error(err)
             })
+        },
+        ExportBrowsedNodes(nodes){
+            ExportBrowseSelection(nodes)
         }
     }
 

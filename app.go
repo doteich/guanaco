@@ -3,6 +3,7 @@ package main
 import (
 	"changeme/pkg/machine"
 	"context"
+	"fmt"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -54,6 +55,17 @@ func (a *App) ReconnectClient(id int) {
 func (a *App) GetClients() []machine.ClientInfos {
 	ac := machine.GetActiveConnection(a.ctx)
 	return ac
+}
+
+func (a *App) ExportBrowseSelection(nodes []string) {
+	path, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
+
+	if err != nil {
+		return
+	}
+
+	fmt.Println(path, nodes)
+
 }
 
 func (a *App) AppBrowse(id int, nodeId string) ([]machine.BrowseResult, error) {
