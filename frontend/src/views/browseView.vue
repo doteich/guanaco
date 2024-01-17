@@ -33,7 +33,7 @@ function dropNode() {
 }
 
 function exportSelection(){
-    store.ExportBrowsedNodes(selectedVars.value.map(el => el.nodeId))
+    store.ExportBrowsedNodes(selectedVars.value)
 }
 
 </script>

@@ -2,8 +2,8 @@ package main
 
 import (
 	"changeme/pkg/machine"
+	"changeme/pkg/utils"
 	"context"
-	"fmt"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -57,14 +57,20 @@ func (a *App) GetClients() []machine.ClientInfos {
 	return ac
 }
 
-func (a *App) ExportBrowseSelection(nodes []string) {
+func (a *App) ExportBrowseSelection(nodes string, client string) (string, error) {
 	path, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
 
 	if err != nil {
-		return
+		return "", err
 	}
 
-	fmt.Println(path, nodes)
+	f, err := utils.SaveBrowseResults(path, client, nodes)
+
+	if err != nil {
+		return "", err
+	}
+
+	return f, nil
 
 }
 
