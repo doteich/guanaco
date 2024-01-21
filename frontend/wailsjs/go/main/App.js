@@ -25,3 +25,7 @@ export function GetClients() {
 export function ReconnectClient(arg1) {
   return window['go']['main']['App']['ReconnectClient'](arg1);
 }
+
+export function StartMonitor(arg1, arg2, arg3) {
+  return window['go']['main']['App']['StartMonitor'](arg1, arg2, arg3);
+}
