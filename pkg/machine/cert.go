@@ -51,7 +51,7 @@ func CreateKeyPair() error {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(24 * 3650 * time.Hour),
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign | x509.KeyUsageContentCommitment,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 		URIs:                  []*url.URL{u},
 	}
