@@ -50,7 +50,7 @@ func CreateKeyPair() error {
 		Subject:               pkix.Name{Country: []string{"DE"}, Organization: []string{"Guanaco"}},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(24 * 3650 * time.Hour),
-		KeyUsage:              x509.KeyUsageDataEncipherment,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign | x509.KeyUsageContentCommitment,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
 		BasicConstraintsValid: true,
 		URIs:                  []*url.URL{u},
