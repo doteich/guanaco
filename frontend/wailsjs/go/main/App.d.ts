@@ -8,8 +8,10 @@ export function AppBrowse(arg1:number,arg2:string):Promise<Array<machine.BrowseR
 
 export function DisconnectClient(arg1:number):Promise<void>;
 
-export function ExportBrowseSelection(arg1:Array<string>):Promise<void>;
+export function ExportBrowseSelection(arg1:string,arg2:string):Promise<string>;
 
 export function GetClients():Promise<Array<machine.ClientInfos>>;
 
 export function ReconnectClient(arg1:number):Promise<void>;
+
+export function StartMonitor(arg1:number,arg2:number,arg3:Array<string>):Promise<boolean>;

@@ -20,10 +20,12 @@ function browseNode(nodeid, id, type) {
     store.Browse(nodeid, id)
 }
 
-function selectNode(name, nodeId) {
+function selectNode(name, nodeId, id, dataType) {
     selectedVars.value.push({
         name,
-        nodeId
+        nodeId,
+        id,
+        dataType
     })
 
 }
@@ -33,14 +35,17 @@ function dropNode() {
 }
 
 function exportSelection(){
-    store.ExportBrowsedNodes(selectedVars.value.map(el => el.nodeId))
+    store.ExportBrowsedNodes(selectedVars.value)
+}
+
+function monitorItems(){
+    store.CreateNodeMonitor(selectedVars.value)
 }
 
 </script>
 
 <template>
     <section class="browser">
-
         <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id, node.type)"
             :style="{ 'margin-left': node.id.split('.').length * 20 + 'px' }">
 
@@ -50,8 +55,9 @@ function exportSelection(){
                 <div>
                     <i :class="'pi ' + node.icon" :style="{ 'color': node.color }"></i>
                 </div>
-                <p> <span>{{ node.name }}</span></p>
-                <Button icon="pi pi-plus" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId)" text
+                <p> <span>{{ node.name }}</span> <span class="datatype" v-if="node.dataType != ''">{{ node.dataType }}</span></p>
+
+                <Button icon="pi pi-plus" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId, node.id, node.dataType)" text
                     v-if="node.type == 'NodeClassVariable'" />
             </div>
 
@@ -66,7 +72,7 @@ function exportSelection(){
                 </DataTable>
             </div>
 
-            <Button icon="pi pi-eye" size="small" aria-label="Add" label="Monitor Selection" raised />
+            <Button icon="pi pi-eye" size="small" aria-label="Add" label="Monitor Selection" raised @click="monitorItems()"/>
             <Button icon="pi pi-file" size="small" aria-label="Add" @click="exportSelection()"
                 label="Export Node-IDs" raised />
 
@@ -173,6 +179,15 @@ td {
 
 }
 
+.datatype{
+    font-size: 10px;
+    background: var(--theme-color-3);
+    color: var(--theme-color-2);
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px;
+    
+}
 
 @keyframes fadein {
     from {

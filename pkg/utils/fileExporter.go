@@ -1,0 +1,22 @@
+package utils
+
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
+type BrowseSelection struct {
+	Name string `json:"nodeName"`
+	ID   string `json:"nodeId"`
+}
+
+func SaveBrowseResults(p string, c string, j string) (string, error) {
+
+	fName := fmt.Sprintf("%s/guanaco_browse_export_%s_%d_%d_%d.json", p, c, time.Now().Minute(), time.Now().Hour(), time.Now().Day())
+
+	if err := os.WriteFile(fName, []byte(j), 0644); err != nil {
+		return fName, err
+	}
+	return fName, nil
+}

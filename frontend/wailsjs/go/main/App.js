@@ -14,8 +14,8 @@ export function DisconnectClient(arg1) {
   return window['go']['main']['App']['DisconnectClient'](arg1);
 }
 
-export function ExportBrowseSelection(arg1) {
-  return window['go']['main']['App']['ExportBrowseSelection'](arg1);
+export function ExportBrowseSelection(arg1, arg2) {
+  return window['go']['main']['App']['ExportBrowseSelection'](arg1, arg2);
 }
 
 export function GetClients() {
@@ -24,4 +24,8 @@ export function GetClients() {
 
 export function ReconnectClient(arg1) {
   return window['go']['main']['App']['ReconnectClient'](arg1);
+}
+
+export function StartMonitor(arg1, arg2, arg3) {
+  return window['go']['main']['App']['StartMonitor'](arg1, arg2, arg3);
 }

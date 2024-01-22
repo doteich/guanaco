@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -16,6 +16,7 @@ export const useClientStore = defineStore("clientStore", {
             name: "Root",
             nodeId: "i=84",
             type: "Object",
+            dataType: "",
             icon: "pi-folder",
             id: "0",
             childs: []
@@ -38,10 +39,11 @@ export const useClientStore = defineStore("clientStore", {
                     let data = {
                         id: child.id,
                         nodeId: child.nodeId,
-                        name: child.name,
+                        dataType: child.dataType,
+                        name: child.name,   
                         icon: child.icon,
                         color: child.color,
-                        type: child.type, 
+                        type: child.type,
                         isExpanded: false
                     }
 
@@ -139,62 +141,109 @@ export const useClientStore = defineStore("clientStore", {
                 return
             }
             AppBrowse(this.selectedClient, nodeId)
-            .then((res)=>{
-                let idc = index.split(".").map(Number)
-                let branch =  this.browseResults
+                .then((res) => {
+                    let idc = index.split(".").map(Number)
+                    let branch = this.browseResults
 
-                console.log(res)
+                    console.log(res)
 
-                for (const level of idc) {
-                    if (branch[level] && branch[level].childs) {
-                        branch = branch[level].childs;
-                    } else {
-                        // Handle the case where the given id is not valid
-                        return;
+                    for (const level of idc) {
+                        if (branch[level] && branch[level].childs) {
+                            branch = branch[level].childs;
+                        } else {
+                            return;
+                        }
                     }
-                }
-                if (branch.length > 0){
-                    
-                   branch.length = 0
-                   return
-                }
+                    if (branch.length > 0) {
 
-                res.forEach((node, i)=>{
-
-                    let data = {
-                        name: node.Name,
-                        nodeId: node.NodeId,
-                        type: node.Type,
-                        icon: "pi-folder",
-                        id: index + "." + i,
-                        childs: []
+                        branch.length = 0
+                        return
                     }
 
-                    if (node.Type == "NodeClassObject"){
-                        data.icon = "pi-folder"
-                        data.color = "var(--theme-color-3)"
-                    }else{
-                        data.icon = "pi-tag"
-                        data.color = "rgb(231, 9, 120)" 
-                    }
+                    res.forEach((node, i) => {
 
-                    branch.push(data)
+                        let data = {
+                            name: node.Name,
+                            nodeId: node.NodeId,
+                            type: node.Type,
+                            dataType: node.DataType,
+                            icon: "pi-folder",
+                            id: index + "." + i,
+                            childs: []
+                        }
+
+                        if (node.Type == "NodeClassObject") {
+                            data.icon = "pi-folder"
+                            data.color = "var(--theme-color-3)"
+                        } else {
+                            data.icon = "pi-tag"
+                            data.color = "rgb(231, 9, 120)"
+                        }
+
+                        branch.push(data)
+                    })
+
+                    //this.browseResults[0].childs = res
                 })
-                
-                //this.browseResults[0].childs = res
-            })
-            .catch((err)=>{
-                this.toast = {
-                    severity: "error",
-                    summary: "Browse Error",
-                    detail: err,
-                    life: 3000,
-                }
-                console.error(err)
-            })
+                .catch((err) => {
+                    this.toast = {
+                        severity: "error",
+                        summary: "Browse Error",
+                        detail: err,
+                        life: 3000,
+                    }
+                    console.error(err)
+                })
         },
-        ExportBrowsedNodes(nodes){
-            ExportBrowseSelection(nodes)
+        ExportBrowsedNodes(nodes) {
+
+            function getPath(iString, res) {
+                let ids = iString.split(".").map(Number)
+
+                let path = ""
+                let branch = res
+
+
+                for (let id of ids) {
+                    path = path + branch[id].name + "/"
+                    branch = branch[id].childs
+                }
+                return path
+
+            }
+
+            let exp = []
+
+            nodes.forEach(el => {
+                exp.push({
+                    name: el.name,
+                    nodeId: el.nodeId,
+                    dataType: el.dataType,
+                    path: getPath(el.id, this.browseResults)
+                })
+            })
+
+            ExportBrowseSelection(JSON.stringify(exp), this.clients.find(c => c.id == this.selectedClient)?.name)
+                .then((res) => {
+                    this.toast = {
+                        severity: "success",
+                        summary: "Exported",
+                        detail: "File:" + res + " created",
+                        life: 3000,
+                    }
+                })
+                .catch((err) => {
+                    this.toast = {
+                        severity: "error",
+                        summary: "Export Error",
+                        detail: err,
+                        life: 3000,
+                    }
+                    console.error(err)
+                })
+        },
+        CreateNodeMonitor(nodes){
+            StartMonitor(this.selectedClient, 10, nodes.map(el => el.nodeId))
         }
     }
 
