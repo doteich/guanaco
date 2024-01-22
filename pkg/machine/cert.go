@@ -27,7 +27,7 @@ func CreateKeyPair() error {
 		return nil
 	}
 
-	pk, err := rsa.GenerateKey(rand.Reader, 4096)
+	pk, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
 		return err
