@@ -9,6 +9,7 @@ import (
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/monitor"
 	"github.com/gopcua/opcua/ua"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Initializes a new node monitor as a Go routine for monitoring value changes
@@ -33,25 +34,39 @@ func InitializeMonitor(ctx context.Context, cid int, nodes []string, ival int) e
 		return err
 	}
 
-	go StartMonitor(ctx, mon, nodes, ival)
+	go StartMonitor(ctx, mon, nodes, ival, cid)
 
 	return nil
 
 }
 
-func StartMonitor(ctx context.Context, m *monitor.NodeMonitor, nodes []string, ival int) {
-
-	fmt.Println("StartUP FOR REAL")
+func StartMonitor(ctx context.Context, m *monitor.NodeMonitor, nodes []string, ival int, id int) {
 
 	sub, err := m.Subscribe(ctx, &opcua.SubscriptionParameters{Interval: time.Duration(ival) * time.Second}, func(s *monitor.Subscription, dcm *monitor.DataChangeMessage) {
-		fmt.Println(dcm.Value.Value())
+		if dcm.Error != nil {
+			runtime.EventsEmit(ctx, "node-monitor", id, "error", dcm.Error.Error())
+		} else {
+
+			if dcm.Status != ua.StatusOK {
+				runtime.EventsEmit(ctx, "node-monitor", id, "error", "received bad status: "+fmt.Sprint(dcm.Status)+"-"+dcm.NodeID.String())
+			} else {
+				runtime.EventsEmit(ctx, "node-monitor", id, "update", dcm.Value.Value(), dcm.NodeID.String())
+			}
+		}
+
 	})
 
 	if err != nil {
+		runtime.EventsEmit(ctx, "node-monitor", id, "error", err.Error())
 		return
 	}
 
 	for _, n := range nodes {
-		sub.AddMonitorItems(ctx, monitor.Request{NodeID: ua.MustParseNodeID(n), MonitoringMode: ua.MonitoringModeReporting, MonitoringParameters: &ua.MonitoringParameters{DiscardOldest: true, QueueSize: 1}})
+		_, err := sub.AddMonitorItems(ctx, monitor.Request{NodeID: ua.MustParseNodeID(n), MonitoringMode: ua.MonitoringModeReporting, MonitoringParameters: &ua.MonitoringParameters{DiscardOldest: true, QueueSize: 1}})
+		if err != nil {
+			runtime.EventsEmit(ctx, "node-monitor", id, "error", err.Error())
+			continue
+		}
+
 	}
 }

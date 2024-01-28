@@ -4,7 +4,6 @@ import (
 	"changeme/pkg/machine"
 	"changeme/pkg/utils"
 	"context"
-	"fmt"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -86,7 +85,6 @@ func (a *App) AppBrowse(id int, nodeId string) ([]machine.BrowseResult, error) {
 }
 
 func (a *App) StartMonitor(id int, ival int, nodes []string) (bool, error) {
-	fmt.Println("StartUP")
 
 	if err := machine.InitializeMonitor(a.ctx, id, nodes, ival); err != nil {
 		runtime.LogError(a.ctx, err.Error())

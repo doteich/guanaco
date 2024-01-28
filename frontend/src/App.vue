@@ -42,7 +42,10 @@ const items = [{
   },
   {
     label: "Monitor",
-    icon: "pi pi-eye"
+    icon: "pi pi-eye",
+    command: (() => {
+    router.push("/monitor")
+  })
   },
   {
     label: "Log",

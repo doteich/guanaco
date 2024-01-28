@@ -20,7 +20,10 @@ export const useClientStore = defineStore("clientStore", {
             icon: "pi-folder",
             id: "0",
             childs: []
-        }]
+        }],
+        monitoredItems: {
+
+        }
 
     }),
     getters: {
@@ -40,7 +43,7 @@ export const useClientStore = defineStore("clientStore", {
                         id: child.id,
                         nodeId: child.nodeId,
                         dataType: child.dataType,
-                        name: child.name,   
+                        name: child.name,
                         icon: child.icon,
                         color: child.color,
                         type: child.type,
@@ -62,6 +65,9 @@ export const useClientStore = defineStore("clientStore", {
             let nodes = getChilds(state.browseResults)
             return nodes
 
+        },
+        getMonitoredItems(state) {
+            return this.monitoredItems
         }
     },
     actions: {
@@ -78,7 +84,24 @@ export const useClientStore = defineStore("clientStore", {
                         console.log(id, event)
                         break;
                 }
-            })
+            }),
+                window.runtime.EventsOn("node-monitor", (id, event, value, nodeId) => {
+                    switch (event) {
+                        case "error":
+                            break
+                        case "update":
+                            let monitor = this.monitoredItems[id]
+                            if (monitor) {
+                                let node = monitor.items.find(n => n.nodeId == nodeId)
+                                if (node) {
+                                    node.value = value
+                                }
+                            }
+
+
+                            break
+                    }
+                })
 
         },
         async addClient(name, ep, mode, policy, auth, user, password) {
@@ -92,6 +115,9 @@ export const useClientStore = defineStore("clientStore", {
                         auth,
                         status: "connected"
                     })
+                    if (this.selectedClient == -1) {
+                        this.selectClient(this.clients[0].id)
+                    }
                 })
                 .catch((err) => {
                     this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
@@ -114,14 +140,24 @@ export const useClientStore = defineStore("clientStore", {
                             status: client.Status
                         })
                     })
+                    if (this.selectedClient == -1) {
+
+                        this.selectClient(this.clients[0].id)
+                    }
                 })
         },
         selectClient(id) {
 
             if (this.selectedClient > -1) {
+                if (this.selectedClient != id) {
+                    this.browseResults[0].childs = []
+                }
+
                 let s = this.clients.find(c => c.id == this.selectedClient)
                 s.selected = false
                 this.selectedClient = -1
+
+
             }
 
             let c = this.clients.find(c => c.id == id)
@@ -242,7 +278,36 @@ export const useClientStore = defineStore("clientStore", {
                     console.error(err)
                 })
         },
-        CreateNodeMonitor(nodes){
+        CreateNodeMonitor(nodes) {
+            if (this.monitoredItems.hasOwnProperty(this.selectedClient)) {
+                nodes.forEach(node => {
+                    this.monitoredItems[this.selectedClient].items.push({
+                        nodeId: node.nodeId,
+                        value: "",
+                        name: node.name,
+                        dataType: node.dataType
+                    })
+                })
+            } else {
+
+                let name = this.clients.find(c => c.id == this.selectedClient).name
+
+                this.monitoredItems[this.selectedClient] = {
+                    items: [],
+                    name: name
+                }
+
+                nodes.forEach(node => {
+                    this.monitoredItems[this.selectedClient].items.push({
+                        nodeId: node.nodeId,
+                        value: "",
+                        name: node.name,
+                        dataType: node.dataType
+                    })
+                })
+            }
+
+
             StartMonitor(this.selectedClient, 10, nodes.map(el => el.nodeId))
         }
     }
