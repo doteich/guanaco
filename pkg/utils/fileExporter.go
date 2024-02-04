@@ -6,11 +6,6 @@ import (
 	"time"
 )
 
-type BrowseSelection struct {
-	Name string `json:"nodeName"`
-	ID   string `json:"nodeId"`
-}
-
 func SaveBrowseResults(p string, c string, j string) (string, error) {
 
 	fName := fmt.Sprintf("%s/guanaco_browse_export_%s_%d_%d_%d.json", p, c, time.Now().Minute(), time.Now().Hour(), time.Now().Day())
@@ -19,4 +14,13 @@ func SaveBrowseResults(p string, c string, j string) (string, error) {
 		return fName, err
 	}
 	return fName, nil
+}
+
+func InitConfigDir() {
+	_, err := os.Stat("./config")
+
+	if err != nil {
+		os.Mkdir("./config", 0644)
+	}
+
 }

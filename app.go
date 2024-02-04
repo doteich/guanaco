@@ -4,6 +4,9 @@ import (
 	"changeme/pkg/machine"
 	"changeme/pkg/utils"
 	"context"
+	"encoding/json"
+	"errors"
+	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -25,6 +28,8 @@ func (a *App) startup(ctx context.Context) {
 	if err := machine.CreateKeyPair(); err != nil {
 		runtime.LogError(a.ctx, err.Error())
 	}
+	utils.InitConfigDir()
+
 	machine.InitClients()
 }
 
@@ -91,4 +96,44 @@ func (a *App) StartMonitor(id int, ival int, nodes []string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (a *App) SaveConfigToFile(conf string) (string, error) {
+
+	f, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{DefaultFilename: "guanaconfig.json", DefaultDirectory: "./config"})
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	if err := os.WriteFile(f, []byte(conf), 0644); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	return f, nil
+}
+func (a *App) LoadConfigFromFile() (string, error) {
+	f, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{DefaultDirectory: "./config", Filters: []runtime.FileFilter{{Pattern: "*.json"}}})
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	conf, err := os.ReadFile(f)
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	ok := json.Valid(conf)
+
+	if !ok {
+		return "", errors.New("selected file is no valid json")
+	}
+
+	return string(conf), nil
 }

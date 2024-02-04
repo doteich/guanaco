@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, SaveConfigToFile, LoadConfigFromFile } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -67,7 +67,7 @@ export const useClientStore = defineStore("clientStore", {
 
         },
         getMonitoredItems(state) {
-            return this.monitoredItems
+            return state.monitoredItems
         }
     },
     actions: {
@@ -85,7 +85,7 @@ export const useClientStore = defineStore("clientStore", {
                         break;
                 }
             }),
-                window.runtime.EventsOn("node-monitor", (id, event, value, nodeId) => {
+                window.runtime.EventsOn("node-monitor", (id, event, value, nodeId, ts) => {
                     switch (event) {
                         case "error":
                             break
@@ -95,6 +95,7 @@ export const useClientStore = defineStore("clientStore", {
                                 let node = monitor.items.find(n => n.nodeId == nodeId)
                                 if (node) {
                                     node.value = value
+                                    node.ts = ts
                                 }
                             }
 
@@ -110,9 +111,12 @@ export const useClientStore = defineStore("clientStore", {
                     this.clients.push({
                         id: data,
                         name: name,
+                        ip: ep,
                         mode,
                         policy,
                         auth,
+                        user,
+                        password,
                         status: "connected"
                     })
                     if (this.selectedClient == -1) {
@@ -137,7 +141,14 @@ export const useClientStore = defineStore("clientStore", {
                         this.clients.push({
                             id: client.ClientId,
                             name: client.Name,
-                            status: client.Status
+                            status: client.Status,
+                            ip: client.IP,
+                            mode: client.Mode,
+                            policy: client.Policy,
+                            auth: client.Auth,
+                            user: client.User,
+                            password: client.Password
+
                         })
                     })
                     if (this.selectedClient == -1) {
@@ -294,7 +305,8 @@ export const useClientStore = defineStore("clientStore", {
 
                 this.monitoredItems[this.selectedClient] = {
                     items: [],
-                    name: name
+                    name: name,
+                    isExpanded: false,
                 }
 
                 nodes.forEach(node => {
@@ -309,6 +321,66 @@ export const useClientStore = defineStore("clientStore", {
 
 
             StartMonitor(this.selectedClient, 10, nodes.map(el => el.nodeId))
+        },
+        toggleTable(id, bool) {
+            this.monitoredItems[id].isExpanded = bool
+        },
+        saveConfig() {
+            let conf = []
+            this.clients.forEach(c => {
+                conf.push({
+                    name: c.name,
+                    ip: c.ip,
+                    policy: c.policy,
+                    mode: c.mode,
+                    auth: c.auth,
+                    user: c.user,
+                    password: c.password,
+                })
+            })
+            SaveConfigToFile(JSON.stringify(conf))
+                .then(res => {
+                    this.toast = {
+                        severity: "success",
+                        summary: "Config Saved",
+                        detail: `Saved to: ${res}`,
+                        life: 3000,
+                    }
+                })
+                .catch(err => {
+                    this.toast = {
+                        severity: "error",
+                        summary: "Save Error",
+                        detail: err,
+                        life: 3000,
+                    }
+                })
+        },
+        loadConfig() {
+            LoadConfigFromFile()
+                .then(res => {
+                    let j = JSON.parse(res)
+
+                    if (j.length < 1) {
+                        this.toast = {
+                            severity: "error",
+                            summary: "Load Error ",
+                            detail: "loaded config invalid or empty",
+                            life: 3000,
+                        }
+                    }
+                    j.forEach(c => {
+                        this.addClient(c.name, c.ip, c.mode, c.policy, c.auth, c.user, c.password)
+                    })
+                })
+                .catch(err => {
+                    this.toast = {
+                        severity: "error",
+                        summary: "Load Error ",
+                        detail: err,
+                        life: 3000,
+                    }
+                })
         }
     }
 
