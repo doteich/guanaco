@@ -14,15 +14,27 @@ import (
 )
 
 type Connection struct {
-	Client *opcua.Client
-	Name   string
-	Status string
+	Client   *opcua.Client
+	Name     string
+	Status   string
+	IP       string
+	Policy   string
+	Mode     string
+	Auth     string
+	User     string
+	Password string
 }
 
 type ClientInfos struct {
 	ClientId int
 	Name     string
 	Status   string
+	IP       string
+	Policy   string
+	Mode     string
+	Auth     string
+	User     string
+	Password string
 }
 
 var (
@@ -97,7 +109,7 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 
 	go Keepalive(ctx, m, cons)
 
-	Clients[cons] = Connection{Client: c, Name: session, Status: "connected"}
+	Clients[cons] = Connection{Client: c, Name: session, Status: "connected", IP: ip, Policy: policy, Mode: mode, Auth: authType, User: user, Password: password}
 
 	return cons, nil
 
@@ -151,7 +163,7 @@ func GetActiveConnection(ctx context.Context) []ClientInfos {
 	var ac []ClientInfos
 
 	for k, c := range Clients {
-		ac = append(ac, ClientInfos{ClientId: k, Name: c.Name, Status: c.Status})
+		ac = append(ac, ClientInfos{ClientId: k, Name: c.Name, Status: c.Status, IP: c.IP, Policy: c.Policy, Mode: c.Mode, Auth: c.Auth, User: c.User, Password: c.Password})
 	}
 
 	return ac

@@ -20,11 +20,11 @@ const { getToast } = storeToRefs(store)
 onMounted(() => {
   store.listen()
   store.getActiveConnections()
-  setTimeout(() => {
-    if (store.getClients.length < 1) {
-      store.addClient("SESSION", "opc.tcp://192.168.178.108:49320", "SignAndEncrypt", "Basic256Sha256", "Anonymous")
-    }
-  }, 3000)
+  // setTimeout(() => {
+  //   if (store.getClients.length < 1) {
+  //     store.addClient("SESSION", "opc.tcp://192.168.178.108:49320", "SignAndEncrypt", "Basic256Sha256", "Anonymous")
+  //   }
+  // }, 3000)
 
 })
 

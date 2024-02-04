@@ -56,6 +56,13 @@ function sClient(id) {
     store.selectClient(id)
 }
 
+function save(){
+    store.saveConfig()
+}
+function load(){
+    store.loadConfig()
+}
+
 
 
 </script>
@@ -80,9 +87,16 @@ function sClient(id) {
         <TieredMenu ref="menu" id="overlay_tmenu" :model="items" popup />
 
         <clientSideBar></clientSideBar>
-        <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav" v-if="slimNav"></Button>
-        <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>
 
+        <div class="nav-actions">
+            <Button icon="pi pi-file-import" text rounded label="Load" v-if="!slimNav" @click="load()"></Button>
+            <Button icon="pi pi-file-import" text rounded v-if="slimNav" @click="load()"></Button>
+            <Button icon="pi pi-file-export" text rounded label="Save" v-if="!slimNav" @click="save()"></Button>
+            <Button icon="pi pi-file-export" text rounded v-if="slimNav" @click="save()"></Button>
+            <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav"
+                v-if="slimNav"></Button>
+            <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>
+        </div>
 
     </section>
 </template>
@@ -104,7 +118,7 @@ function sClient(id) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 100%;
 }
 
 .side-nav-slim {
@@ -112,7 +126,7 @@ function sClient(id) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 100%;
 }
 
 .client-label {
@@ -155,8 +169,16 @@ function sClient(id) {
     font-family: monospace;
 }
 
-.nav-toggle {
+.nav-actions {
     margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10%;
+    align-items: center;
+}
+
+.nav-toggle {
+
     margin-bottom: 10%;
 }
 </style>

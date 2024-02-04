@@ -22,8 +22,16 @@ export function GetClients() {
   return window['go']['main']['App']['GetClients']();
 }
 
+export function LoadConfigFromFile() {
+  return window['go']['main']['App']['LoadConfigFromFile']();
+}
+
 export function ReconnectClient(arg1) {
   return window['go']['main']['App']['ReconnectClient'](arg1);
+}
+
+export function SaveConfigToFile(arg1) {
+  return window['go']['main']['App']['SaveConfigToFile'](arg1);
 }
 
 export function StartMonitor(arg1, arg2, arg3) {

@@ -50,7 +50,7 @@ func StartMonitor(ctx context.Context, m *monitor.NodeMonitor, nodes []string, i
 			if dcm.Status != ua.StatusOK {
 				runtime.EventsEmit(ctx, "node-monitor", id, "error", "received bad status: "+fmt.Sprint(dcm.Status)+"-"+dcm.NodeID.String())
 			} else {
-				runtime.EventsEmit(ctx, "node-monitor", id, "update", dcm.Value.Value(), dcm.NodeID.String())
+				runtime.EventsEmit(ctx, "node-monitor", id, "update", dcm.Value.Value(), dcm.NodeID.String(), dcm.SourceTimestamp)
 			}
 		}
 
