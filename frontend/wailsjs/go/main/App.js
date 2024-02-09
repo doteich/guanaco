@@ -37,3 +37,7 @@ export function SaveConfigToFile(arg1) {
 export function StartMonitor(arg1, arg2, arg3) {
   return window['go']['main']['App']['StartMonitor'](arg1, arg2, arg3);
 }
+
+export function StopMonitor(arg1) {
+  return window['go']['main']['App']['StopMonitor'](arg1);
+}

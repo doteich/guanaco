@@ -11,7 +11,9 @@ const store = useClientStore()
 function toggleTable(id, status) {
     store.toggleTable(id, status)
 }
-
+function stop(id){
+    store.stopNodeMonitor(id)
+}
 
 
 
@@ -25,8 +27,11 @@ function toggleTable(id, status) {
 
                 <h5>{{ value.name }}</h5>
                 <div class="button-bar">
-                    <Button icon="pi pi-database" label="Log"  outlined size="small" @click="toggleTable(key, !value.isExpanded)"
-                        class="log-button" />
+                    <Button icon="pi pi-database" text size="small"
+                        @click="toggleTable(key, !value.isExpanded)" class="log-button"  severity="help" title="Setup Logger" />
+                    <Button icon="pi pi-times"  text size="small"
+                        @click="stop(key)" class="log-button" severity="danger" title="Drop Monitor" />
+
                     <Button icon="pi pi-chevron-right" text rounded size="small" class="turn"
                         @click="toggleTable(key, !value.isExpanded)" />
                 </div>
@@ -76,10 +81,11 @@ h5 {
     align-items: center;
 }
 
-.turn {
-    margin-left: 30px;
-
+.button-bar > button{
+    margin: 0 10px;
 }
+
+
 
 .turn:hover {
 

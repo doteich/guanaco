@@ -98,6 +98,13 @@ func (a *App) StartMonitor(id int, ival int, nodes []string) (bool, error) {
 	return true, nil
 }
 
+func (a *App) StopMonitor(id int) (bool, error) {
+	if err := machine.StopMonitor(a.ctx, id); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (a *App) SaveConfigToFile(conf string) (string, error) {
 
 	f, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{DefaultFilename: "guanaconfig.json", DefaultDirectory: "./config"})
