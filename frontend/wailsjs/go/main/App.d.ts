@@ -19,3 +19,5 @@ export function ReconnectClient(arg1:number):Promise<void>;
 export function SaveConfigToFile(arg1:string):Promise<string>;
 
 export function StartMonitor(arg1:number,arg2:number,arg3:Array<string>):Promise<boolean>;
+
+export function StopMonitor(arg1:number):Promise<boolean>;

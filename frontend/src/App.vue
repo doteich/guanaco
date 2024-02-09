@@ -54,9 +54,6 @@ const items = [{
   {
     label: "Query Logs",
     icon: "pi pi-chart-line"
-  }, {
-    label: "Save/Load Config",
-    icon: "pi pi-file"
   },
   {
     label: "Certs",

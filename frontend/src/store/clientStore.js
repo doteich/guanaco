@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, SaveConfigToFile, LoadConfigFromFile } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -322,6 +322,22 @@ export const useClientStore = defineStore("clientStore", {
 
             StartMonitor(this.selectedClient, 10, nodes.map(el => el.nodeId))
         },
+        stopNodeMonitor(id) {
+            
+            StopMonitor(Number(id))
+            .then(()=> {
+                delete(this.monitoredItems[id])
+            })
+            .catch(err => {
+                this.toast = {
+                    severity: "error",
+                    summary: "Monitor Error",
+                    detail: err,
+                    life: 3000,
+                }
+            })
+        },
+
         toggleTable(id, bool) {
             this.monitoredItems[id].isExpanded = bool
         },

@@ -12,6 +12,10 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+var (
+	Subs map[int]*monitor.Subscription
+)
+
 // Initializes a new node monitor as a Go routine for monitoring value changes
 // The function takes following parameters
 //
@@ -26,6 +30,15 @@ func InitializeMonitor(ctx context.Context, cid int, nodes []string, ival int) e
 
 	if !ok {
 		return errors.New("unknown client id")
+	}
+
+	if Subs == nil {
+		Subs = make(map[int]*monitor.Subscription)
+	}
+
+	if _, ok := Subs[cid]; ok {
+		AddItems(ctx, cid, nodes)
+		return nil
 	}
 
 	mon, err := monitor.NewNodeMonitor(c.Client)
@@ -56,17 +69,39 @@ func StartMonitor(ctx context.Context, m *monitor.NodeMonitor, nodes []string, i
 
 	})
 
+	Subs[id] = sub
+
 	if err != nil {
 		runtime.EventsEmit(ctx, "node-monitor", id, "error", err.Error())
 		return
 	}
+	AddItems(ctx, id, nodes)
 
-	for _, n := range nodes {
-		_, err := sub.AddMonitorItems(ctx, monitor.Request{NodeID: ua.MustParseNodeID(n), MonitoringMode: ua.MonitoringModeReporting, MonitoringParameters: &ua.MonitoringParameters{DiscardOldest: true, QueueSize: 1}})
-		if err != nil {
-			runtime.EventsEmit(ctx, "node-monitor", id, "error", err.Error())
-			continue
+}
+
+func AddItems(ctx context.Context, id int, nodes []string) {
+
+	if sub, ok := Subs[id]; ok {
+		for _, n := range nodes {
+			_, err := sub.AddMonitorItems(ctx, monitor.Request{NodeID: ua.MustParseNodeID(n), MonitoringMode: ua.MonitoringModeReporting, MonitoringParameters: &ua.MonitoringParameters{DiscardOldest: true, QueueSize: 1}})
+			if err != nil {
+				runtime.EventsEmit(ctx, "node-monitor", id, "error", err.Error())
+				continue
+			}
+
 		}
+	}
 
+}
+
+func StopMonitor(ctx context.Context, id int) error {
+	if sub, ok := Subs[id]; ok {
+		if err := sub.Unsubscribe(ctx); err != nil {
+			return err
+		}
+		delete(Subs, id)
+		return nil
+	} else {
+		return errors.New("monitor with id does not exist")
 	}
 }
