@@ -81,7 +81,6 @@ export const useClientStore = defineStore("clientStore", {
                         this.clients.filter(c => c.id == id)[0].status = "connected"
                         break;
                     case 'keepalive':
-                        console.log(id, event)
                         break;
                 }
             }),
@@ -98,8 +97,6 @@ export const useClientStore = defineStore("clientStore", {
                                     node.ts = ts
                                 }
                             }
-
-
                             break
                     }
                 })
@@ -122,6 +119,7 @@ export const useClientStore = defineStore("clientStore", {
                     if (this.selectedClient == -1) {
                         this.selectClient(this.clients[0].id)
                     }
+
                 })
                 .catch((err) => {
                     this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
@@ -192,7 +190,6 @@ export const useClientStore = defineStore("clientStore", {
                     let idc = index.split(".").map(Number)
                     let branch = this.browseResults
 
-                    console.log(res)
 
                     for (const level of idc) {
                         if (branch[level] && branch[level].childs) {
@@ -290,52 +287,62 @@ export const useClientStore = defineStore("clientStore", {
                 })
         },
         CreateNodeMonitor(nodes) {
-            if (this.monitoredItems.hasOwnProperty(this.selectedClient)) {
-                nodes.forEach(node => {
-                    this.monitoredItems[this.selectedClient].items.push({
-                        nodeId: node.nodeId,
-                        value: "",
-                        name: node.name,
-                        dataType: node.dataType
-                    })
-                })
-            } else {
-
-                let name = this.clients.find(c => c.id == this.selectedClient).name
-
-                this.monitoredItems[this.selectedClient] = {
-                    items: [],
-                    name: name,
-                    isExpanded: false,
-                }
-
-                nodes.forEach(node => {
-                    this.monitoredItems[this.selectedClient].items.push({
-                        nodeId: node.nodeId,
-                        value: "",
-                        name: node.name,
-                        dataType: node.dataType
-                    })
-                })
-            }
-
-
             StartMonitor(this.selectedClient, 10, nodes.map(el => el.nodeId))
+                .then(() => {
+                    if (this.monitoredItems.hasOwnProperty(this.selectedClient)) {
+                        nodes.forEach(node => {
+                            this.monitoredItems[this.selectedClient].items.push({
+                                nodeId: node.nodeId,
+                                value: "",
+                                name: node.name,
+                                dataType: node.dataType
+                            })
+                        })
+                    } else {
+
+                        let name = this.clients.find(c => c.id == this.selectedClient).name
+
+                        this.monitoredItems[this.selectedClient] = {
+                            items: [],
+                            name: name,
+                            isExpanded: false,
+                        }
+
+                        nodes.forEach(node => {
+                            this.monitoredItems[this.selectedClient].items.push({
+                                nodeId: node.nodeId,
+                                value: "",
+                                name: node.name,
+                                dataType: node.dataType
+                            })
+                        })
+                    }
+                })
+                .catch(err => {
+                    err => {
+                        this.toast = {
+                            severity: "error",
+                            summary: "Monitor Error",
+                            detail: err,
+                            life: 3000,
+                        }
+                    }
+                })
         },
         stopNodeMonitor(id) {
-            
+
             StopMonitor(Number(id))
-            .then(()=> {
-                delete(this.monitoredItems[id])
-            })
-            .catch(err => {
-                this.toast = {
-                    severity: "error",
-                    summary: "Monitor Error",
-                    detail: err,
-                    life: 3000,
-                }
-            })
+                .then(() => {
+                    delete (this.monitoredItems[id])
+                })
+                .catch(err => {
+                    this.toast = {
+                        severity: "error",
+                        summary: "Monitor Error",
+                        detail: err,
+                        life: 3000,
+                    }
+                })
         },
 
         toggleTable(id, bool) {
@@ -344,6 +351,20 @@ export const useClientStore = defineStore("clientStore", {
         saveConfig() {
             let conf = []
             this.clients.forEach(c => {
+
+                let i = []
+
+
+                if (Object.keys(this.monitoredItems).indexOf(c.id.toString()) != -1) {
+
+                    i = this.monitoredItems[c.id]?.items.map(e => {
+                        return {
+                            nodeId: e.nodeId,
+                            name: e.name,
+                            dataType: e.dataType
+                        }
+                    })
+                }
                 conf.push({
                     name: c.name,
                     ip: c.ip,
@@ -352,6 +373,7 @@ export const useClientStore = defineStore("clientStore", {
                     auth: c.auth,
                     user: c.user,
                     password: c.password,
+                    monitoredItems: i
                 })
             })
             SaveConfigToFile(JSON.stringify(conf))
@@ -386,7 +408,45 @@ export const useClientStore = defineStore("clientStore", {
                         }
                     }
                     j.forEach(c => {
-                        this.addClient(c.name, c.ip, c.mode, c.policy, c.auth, c.user, c.password)
+
+                        AddClient(c.name, c.ip, c.mode, c.policy, c.auth, c.user, c.password)
+                            .then((data) => {
+                                this.clients.push({
+                                    id: data,
+                                    name: c.name,
+                                    ip: c.ip,
+                                    mode: c.mode,
+                                    policy: c.policy,
+                                    auth: c.auth,
+                                    user: c.user,
+                                    password: c.password,
+                                    status: "connected"
+                                })
+                                if (c.monitoredItems.length > 0) {
+                                    StartMonitor(data, 10, c.monitoredItems.map(el => el.nodeId))
+                                        .then(() => {
+                                            this.monitoredItems[data] = {
+                                                items: [],
+                                                name: c.name,
+                                                isExpanded: false,
+                                            }
+
+                                            c.monitoredItems.forEach(node => {
+                                                this.monitoredItems[data].items.push({
+                                                    nodeId: node.nodeId,
+                                                    value: "",
+                                                    name: node.name,
+                                                    dataType: node.dataType
+                                                })
+                                            })
+                                        })
+                                }
+
+                            })
+                            .catch((err) => {
+                                this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
+                            })
+
                     })
                 })
                 .catch(err => {
