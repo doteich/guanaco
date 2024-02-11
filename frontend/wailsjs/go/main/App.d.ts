@@ -8,6 +8,8 @@ export function AppBrowse(arg1:number,arg2:string):Promise<Array<machine.BrowseR
 
 export function DisconnectClient(arg1:number):Promise<void>;
 
+export function DropClient(arg1:number):Promise<boolean>;
+
 export function ExportBrowseSelection(arg1:string,arg2:string):Promise<string>;
 
 export function GetClients():Promise<Array<machine.ClientInfos>>;

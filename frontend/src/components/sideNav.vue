@@ -17,25 +17,40 @@ let selectedClient = {
     status: ""
 }
 
-const items = [{
-    label: '',
-    icon: 'pi pi-refresh',
-    command: () => {
-        toggleClient()
-    }
-}]
+const items = ref( [
+
+])
 
 const menu = ref();
 
 const toggle = (event, id, status) => {
     selectedClient.id = id
     selectedClient.status = status
+    items.value = []
     if (status == "disconnected") {
-        items[0].label = "Connect"
-        items[0].icon = "pi pi-play"
+        items.value.push({
+            label: "Connect",
+            icon: "pi pi-play",
+            command: () => {
+                toggleClient()
+            }
+        })
+        items.value.push({
+            label: "Remove",
+            icon: "pi pi-times",
+            command: () => {
+                drop()
+            }
+        })
+
     } else {
-        items[0].label = "Disconnect"
-        items[0].icon = "pi pi-times"
+        items.value.push({
+            label: "Disconnect",
+            icon: "pi pi-stop-circle",
+            command: () => {
+                toggleClient()
+            }
+        })
     }
     menu.value.toggle(event);
 };
@@ -56,11 +71,14 @@ function sClient(id) {
     store.selectClient(id)
 }
 
-function save(){
+function save() {
     store.saveConfig()
 }
-function load(){
+function load() {
     store.loadConfig()
+}
+function drop(){
+    store.removeClient(selectedClient.id)
 }
 
 
@@ -90,9 +108,9 @@ function load(){
 
         <div class="nav-actions">
             <Button icon="pi pi-file-import" text rounded label="Load" v-if="!slimNav" @click="load()"></Button>
-            <Button icon="pi pi-file-import" text rounded v-if="slimNav" @click="load()"></Button>
+            <Button icon="pi pi-file-import" text rounded v-if="slimNav" @click="load()" title="Load Config"></Button>
             <Button icon="pi pi-file-export" text rounded label="Save" v-if="!slimNav" @click="save()"></Button>
-            <Button icon="pi pi-file-export" text rounded v-if="slimNav" @click="save()"></Button>
+            <Button icon="pi pi-file-export" text rounded v-if="slimNav" @click="save()" title="Save Config"></Button>
             <Button icon="pi pi-angle-double-right" text rounded class="nav-toggle" @click="toggleNav"
                 v-if="slimNav"></Button>
             <Button icon="pi pi-angle-double-left" text rounded class="nav-toggle" @click="toggleNav" v-else></Button>

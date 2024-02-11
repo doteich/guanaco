@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile, DropClient } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -132,6 +132,21 @@ export const useClientStore = defineStore("clientStore", {
         async reconnect(id) {
             ReconnectClient(id)
         },
+        removeClient(id){
+            DropClient(Number(id))
+            .then(()=>{
+                this.clients = this.clients.filter(c => c.id != id)
+            })
+            .catch(err => {
+                this.toast = {
+                    severity: "error",
+                    summary: "Remove Error",
+                    detail: err,
+                    life: 3000,
+                }
+            })
+        },
+
         async getActiveConnections() {
             GetClients()
                 .then(res => {
@@ -395,6 +410,13 @@ export const useClientStore = defineStore("clientStore", {
                 })
         },
         loadConfig() {
+            Object.keys(this.monitoredItems).forEach(m => this.stopNodeMonitor(m))
+            this.clients.forEach(c => {
+                this.disconnectClient(c.id)
+            })
+
+            this.clients = []
+
             LoadConfigFromFile()
                 .then(res => {
                     let j = JSON.parse(res)

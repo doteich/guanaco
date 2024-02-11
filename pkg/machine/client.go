@@ -168,3 +168,20 @@ func GetActiveConnection(ctx context.Context) []ClientInfos {
 
 	return ac
 }
+
+func RemoveClient(ctx context.Context, id int) error {
+
+	c, ok := Clients[id]
+
+	if !ok {
+		return errors.New("client with provided id does not exist")
+	}
+
+	if c.Status == "connected" {
+		Disconnect(ctx, id)
+	}
+
+	delete(Clients, id)
+
+	return nil
+}

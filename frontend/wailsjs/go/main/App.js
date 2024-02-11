@@ -14,6 +14,10 @@ export function DisconnectClient(arg1) {
   return window['go']['main']['App']['DisconnectClient'](arg1);
 }
 
+export function DropClient(arg1) {
+  return window['go']['main']['App']['DropClient'](arg1);
+}
+
 export function ExportBrowseSelection(arg1, arg2) {
   return window['go']['main']['App']['ExportBrowseSelection'](arg1, arg2);
 }

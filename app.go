@@ -57,6 +57,15 @@ func (a *App) ReconnectClient(id int) {
 	machine.Reconnect(a.ctx, id)
 }
 
+func (a *App) DropClient(id int) (bool, error) {
+	if err := machine.RemoveClient(a.ctx, id); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return false, err
+	}
+	return true, nil
+
+}
+
 func (a *App) GetClients() []machine.ClientInfos {
 	ac := machine.GetActiveConnection(a.ctx)
 	return ac
@@ -66,12 +75,14 @@ func (a *App) ExportBrowseSelection(nodes string, client string) (string, error)
 	path, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
 
 	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return "", err
 	}
 
 	f, err := utils.SaveBrowseResults(path, client, nodes)
 
 	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return "", err
 	}
 
@@ -84,6 +95,7 @@ func (a *App) AppBrowse(id int, nodeId string) ([]machine.BrowseResult, error) {
 
 	if err != nil {
 		runtime.LogError(a.ctx, err.Error())
+		return nil, err
 	}
 
 	return res, nil
