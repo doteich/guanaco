@@ -16,12 +16,15 @@ func CreateService() {
 
 	fmt.Printf("Arch: %s, OS: %s \n", arch, opSys)
 
-	nssmPath := path.Join("./tools/nssm", "nssm.exe") 
+	nssmPath := path.Join("./tools/nssm", "nssm.exe")
 
+	// args := []string{
+	//     "add",
+	//     serviceName,
+	//     applicationPath,
+	// }
 
-
-	cmd := exec.Command(nssmPath)
-
+	cmd := exec.Command(nssmPath) // include args here
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
