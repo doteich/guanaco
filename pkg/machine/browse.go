@@ -82,29 +82,29 @@ func BrowseNodes(ctx context.Context, cid int, nid string) ([]BrowseResult, erro
 			}
 			switch v := dt[0].Value.NodeID().IntID(); v {
 			case id.DateTime:
-				t = "time.Time"
+				t = "Time"
 			case id.Boolean:
-				t = "bool"
+				t = "Bool"
 			case id.SByte:
-				t = "int8"
+				t = "i8"
 			case id.Int16:
-				t = "int16"
+				t = "i16"
 			case id.Int32:
-				t = "int32"
+				t = "i32"
 			case id.Byte:
-				t = "byte"
+				t = "Byte"
 			case id.UInt16:
-				t = "uint16"
+				t = "u16"
 			case id.UInt32:
-				t = "uint32"
+				t = "u32"
 			case id.UtcTime:
-				t = "time.Time"
+				t = "Time"
 			case id.String:
-				t = "string"
+				t = "Str"
 			case id.Float:
-				t = "float32"
+				t = "f32"
 			case id.Double:
-				t = "float64"
+				t = "f64"
 			default:
 				t = dt[0].Value.NodeID().String()
 			}

@@ -156,3 +156,7 @@ func (a *App) LoadConfigFromFile() (string, error) {
 
 	return string(conf), nil
 }
+
+func (a *App) SetupLoggingService() {
+	utils.CreateService()
+}

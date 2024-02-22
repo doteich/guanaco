@@ -52,11 +52,14 @@ function monitorItems(){
             <i class="pi pi-chevron-down" v-if="node.isExpanded"></i>
             <i class="pi pi-chevron-right turn" v-else></i>
             <div class="browse-node-content">
-                <div>
+                <div >
                     <i :class="'pi ' + node.icon" :style="{ 'color': node.color }"></i>
                 </div>
-                <p> <span>{{ node.name }}</span> <span class="datatype" v-if="node.dataType != ''">{{ node.dataType }}</span></p>
-
+                <div v-if="node.dataType != ''" class="variable">
+                    <span class="datatype" >{{ node.dataType }}</span>
+                </div>
+                <p> <span>{{ node.name }}</span> </p>
+               
                 <Button icon="pi pi-plus" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId, node.id, node.dataType)" text
                     v-if="node.type == 'NodeClassVariable'" />
             </div>
@@ -82,32 +85,39 @@ function monitorItems(){
 <style>
 .browser {
     margin-top: 30px;
+   
 }
 
 .browse-node {
     display: flex;
     align-items: center;
-    width: fit-content;
+    min-width: fit-content;
     height: 2.0em;
     cursor: pointer;
     padding: 0 0 0 0;
     margin: 10px;
     background-color: var(--theme-color-1);
-
-    width: 33%;
-
+    width: 60vw;
+ 
 }
 
 .browse-node>i {
     margin-right: 5px;
 }
 
+.variable{
+    background: var(--theme-color-3);
+    width: 5%;
+}
+
+
+
 .browse-node:hover>.turn {
     transform: rotate(90deg);
 }
 
 i {
-    color: var(--theme-color-3)
+    color: var(--theme-color-3);
 }
 
 .browse-node-content {
@@ -180,9 +190,9 @@ td {
 }
 
 .datatype{
-    font-size: 10px;
-    background: var(--theme-color-3);
+    font-size: 11px;
     color: var(--theme-color-2);
+  
     font-weight: bold;
     border-radius: 4px;
     padding: 2px;

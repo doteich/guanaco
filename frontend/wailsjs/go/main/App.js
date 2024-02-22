@@ -38,6 +38,10 @@ export function SaveConfigToFile(arg1) {
   return window['go']['main']['App']['SaveConfigToFile'](arg1);
 }
 
+export function SetupLoggingService() {
+  return window['go']['main']['App']['SetupLoggingService']();
+}
+
 export function StartMonitor(arg1, arg2, arg3) {
   return window['go']['main']['App']['StartMonitor'](arg1, arg2, arg3);
 }

@@ -15,6 +15,10 @@ function stop(id){
     store.stopNodeMonitor(id)
 }
 
+function StartLogger(id){
+    store.createLogger()
+}
+
 
 
 </script>
@@ -28,7 +32,7 @@ function stop(id){
                 <h5>{{ value.name }}</h5>
                 <div class="button-bar">
                     <Button icon="pi pi-database" text size="small"
-                        @click="toggleTable(key, !value.isExpanded)" class="log-button"  severity="help" title="Setup Logger" />
+                        @click="StartLogger(key)" class="log-button"  severity="help" title="Setup Logger" />
                     <Button icon="pi pi-times"  text size="small"
                         @click="stop(key)" class="log-button" severity="danger" title="Drop Monitor" />
 

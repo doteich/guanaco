@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile, DropClient } from "../../wailsjs/go/main/App"
+import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile, DropClient, SetupLoggingService } from "../../wailsjs/go/main/App"
 
 
 export const useClientStore = defineStore("clientStore", {
@@ -479,6 +479,9 @@ export const useClientStore = defineStore("clientStore", {
                         life: 3000,
                     }
                 })
+        },
+        createLogger(){
+            SetupLoggingService()
         }
     }
 
