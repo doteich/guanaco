@@ -108,7 +108,7 @@ export const useClientStore = defineStore("clientStore", {
                     this.clients.push({
                         id: data,
                         name: name,
-                        ip: ep,
+                        ep: ep,
                         mode,
                         policy,
                         auth,
@@ -155,7 +155,7 @@ export const useClientStore = defineStore("clientStore", {
                             id: client.ClientId,
                             name: client.Name,
                             status: client.Status,
-                            ip: client.IP,
+                            ep: client.EP,
                             mode: client.Mode,
                             policy: client.Policy,
                             auth: client.Auth,
@@ -382,7 +382,7 @@ export const useClientStore = defineStore("clientStore", {
                 }
                 conf.push({
                     name: c.name,
-                    ip: c.ip,
+                    ep: c.ep,
                     policy: c.policy,
                     mode: c.mode,
                     auth: c.auth,
@@ -431,12 +431,12 @@ export const useClientStore = defineStore("clientStore", {
                     }
                     j.forEach(c => {
 
-                        AddClient(c.name, c.ip, c.mode, c.policy, c.auth, c.user, c.password)
+                        AddClient(c.name, c.ep, c.mode, c.policy, c.auth, c.user, c.password)
                             .then((data) => {
                                 this.clients.push({
                                     id: data,
                                     name: c.name,
-                                    ip: c.ip,
+                                    ep: c.ep,
                                     mode: c.mode,
                                     policy: c.policy,
                                     auth: c.auth,

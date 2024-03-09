@@ -37,8 +37,8 @@ func (a *App) shutdown(ctx context.Context) {
 	machine.CloseClientConnection(a.ctx)
 }
 
-func (a *App) AddClient(session string, ip string, mode string, policy string, authType string, user string, password string) (int, error) {
-	id, err := machine.CreateClientConnection(a.ctx, session, ip, mode, policy, authType, user, password)
+func (a *App) AddClient(session string, ep string, mode string, policy string, authType string, user string, password string) (int, error) {
+	id, err := machine.CreateClientConnection(a.ctx, session, ep, mode, policy, authType, user, password)
 
 	if err != nil {
 		runtime.LogError(a.ctx, err.Error())

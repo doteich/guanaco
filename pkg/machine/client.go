@@ -17,7 +17,7 @@ type Connection struct {
 	Client   *opcua.Client
 	Name     string
 	Status   string
-	IP       string
+	EP       string
 	Policy   string
 	Mode     string
 	Auth     string
@@ -29,7 +29,7 @@ type ClientInfos struct {
 	ClientId int
 	Name     string
 	Status   string
-	IP       string
+	EP       string
 	Policy   string
 	Mode     string
 	Auth     string
@@ -53,16 +53,16 @@ func CloseClientConnection(ctx context.Context) {
 	}
 }
 
-func CreateClientConnection(ctx context.Context, session string, ip string, mode string, policy string, authType string, user string, password string) (int, error) {
-	endpoints, err := opcua.GetEndpoints(ctx, ip)
+func CreateClientConnection(ctx context.Context, session string, ep string, mode string, policy string, authType string, user string, password string) (int, error) {
+	endpoints, err := opcua.GetEndpoints(ctx, ep)
 
 	if err != nil {
 		return 0, err
 	}
 
-	ep := opcua.SelectEndpoint(endpoints, policy, ua.MessageSecurityModeFromString(mode))
+	endp := opcua.SelectEndpoint(endpoints, policy, ua.MessageSecurityModeFromString(mode))
 
-	if ep == nil {
+	if endp == nil {
 		err := errors.New("no valid endpoint for provided config found")
 		return 0, err
 	}
@@ -75,10 +75,10 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 	switch authType {
 	case "User&Password":
 		opts = append(opts, opcua.AuthUsername(user, password))
-		opts = append(opts, opcua.SecurityFromEndpoint(ep, ua.UserTokenTypeUserName))
+		opts = append(opts, opcua.SecurityFromEndpoint(endp, ua.UserTokenTypeUserName))
 	case "Anonymous":
 		opts = append(opts, opcua.AuthAnonymous())
-		opts = append(opts, opcua.SecurityFromEndpoint(ep, ua.UserTokenTypeAnonymous))
+		opts = append(opts, opcua.SecurityFromEndpoint(endp, ua.UserTokenTypeAnonymous))
 	}
 
 	if policy != "None" {
@@ -86,7 +86,7 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 		opts = append(opts, opcua.PrivateKeyFile("./certs/key.pem"))
 	}
 
-	c, err := opcua.NewClient(ip, opts...)
+	c, err := opcua.NewClient(ep, opts...)
 
 	if err != nil {
 		return 0, err
@@ -109,7 +109,7 @@ func CreateClientConnection(ctx context.Context, session string, ip string, mode
 
 	go Keepalive(ctx, m, cons)
 
-	Clients[cons] = Connection{Client: c, Name: session, Status: "connected", IP: ip, Policy: policy, Mode: mode, Auth: authType, User: user, Password: password}
+	Clients[cons] = Connection{Client: c, Name: session, Status: "connected", EP: ep, Policy: policy, Mode: mode, Auth: authType, User: user, Password: password}
 
 	return cons, nil
 
@@ -163,7 +163,7 @@ func GetActiveConnection(ctx context.Context) []ClientInfos {
 	var ac []ClientInfos
 
 	for k, c := range Clients {
-		ac = append(ac, ClientInfos{ClientId: k, Name: c.Name, Status: c.Status, IP: c.IP, Policy: c.Policy, Mode: c.Mode, Auth: c.Auth, User: c.User, Password: c.Password})
+		ac = append(ac, ClientInfos{ClientId: k, Name: c.Name, Status: c.Status, EP: c.EP, Policy: c.Policy, Mode: c.Mode, Auth: c.Auth, User: c.User, Password: c.Password})
 	}
 
 	return ac
