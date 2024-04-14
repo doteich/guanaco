@@ -9,9 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.28",
     "pinia": "^2.1.7",
     "primeicons": "^6.0.1",
     "primevue": "^3.41.1",
+    "tailwind-merge": "^2.2.2",
     "vue": "^3.2.37",
     "vue-router": "^4.2.5"
   },

@@ -28,6 +28,7 @@ func (a *App) startup(ctx context.Context) {
 	if err := machine.CreateKeyPair(); err != nil {
 		runtime.LogError(a.ctx, err.Error())
 	}
+
 	utils.InitConfigDir()
 
 	machine.InitClients()
@@ -157,6 +158,10 @@ func (a *App) LoadConfigFromFile() (string, error) {
 	return string(conf), nil
 }
 
-func (a *App) SetupLoggingService() {
-	utils.CreateService()
+func (a *App) SetupLoggingService(conf string) (bool, error) {
+	if err := utils.CreateService(conf); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

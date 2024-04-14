@@ -1,38 +1,53 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
-	"path"
-	"runtime"
 )
 
-func CreateService() {
+// Config is the runner app config structure.
+type ServiceConfig struct {
+	Id             int      `json:"id"`
+	ConfName       string   `json:"confName"`
+	DB             string   `json:"db"`
+	EP             string   `json:"ep"`
+	Policy         string   `json:"policy"`
+	Mode           string   `json:"mode"`
+	Auth           string   `json:"auth"`
+	Password       string   `json:"password"`
+	Username       string   `json:"user"`
+	MonitoredItems []string `json:"monitoredItems"`
+	Interval       int      `json:"interval"`
+}
 
-	arch := runtime.GOARCH
+func CreateService(c string) error {
 
-	opSys := runtime.GOOS
+	var config ServiceConfig
 
-	fmt.Printf("Arch: %s, OS: %s \n", arch, opSys)
-
-	nssmPath := path.Join("./tools/nssm", "nssm.exe")
-
-	// args := []string{
-	//     "add",
-	//     serviceName,
-	//     applicationPath,
-	// }
-
-	cmd := exec.Command(nssmPath) // include args here
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+	if err := json.Unmarshal([]byte(c), &config); err != nil {
+		return err
 	}
 
-	fmt.Printf("Service created successfully!\n")
+	dirs, err := os.ReadDir("./services")
 
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range dirs {
+		fmt.Println(dir.Name())
+	}
+
+	i := len(dirs)
+
+	config.Id = i
+
+	if err := os.Mkdir(fmt.Sprintf("%d_%s", config.Id, config.ConfName), 0644); err != nil {
+		return err
+	}
+
+	fmt.Println(config)
+
+	return nil
 }

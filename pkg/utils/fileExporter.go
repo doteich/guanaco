@@ -23,4 +23,10 @@ func InitConfigDir() {
 		os.Mkdir("./config", 0644)
 	}
 
+	_, err = os.Stat("./services")
+
+	if err != nil {
+		os.Mkdir("./services", 0644)
+	}
+
 }

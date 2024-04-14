@@ -20,7 +20,7 @@ export function ReconnectClient(arg1:number):Promise<void>;
 
 export function SaveConfigToFile(arg1:string):Promise<string>;
 
-export function SetupLoggingService():Promise<void>;
+export function SetupLoggingService(arg1:string):Promise<boolean>;
 
 export function StartMonitor(arg1:number,arg2:number,arg3:Array<string>):Promise<boolean>;
 
