@@ -31,8 +31,14 @@ function StartLogger(id) {
 
 const showModal = ref(false)
 const confValidation = ref("crimson")
+const validConfName = ref(false)
 
-function toggleModal(id) {
+function toggleModal(id, items) {
+
+    loggerConf.value.displayName = ""
+
+    loggerConf.value.confName = ""
+    sanitizeConfName(loggerConf.value.confName)
 
     let client = store.getClients.find((c, items) => {
         return c.id == id
@@ -48,7 +54,7 @@ function toggleModal(id) {
     loggerConf.value.auth = client.auth
     loggerConf.value.user = client.user
     loggerConf.value.password = client.password
-    loggerConf.value.monitoredItems = items
+    loggerConf.value.monitoredItems = items.map(e => e.nodeId)
 
     showModal.value = !showModal.value
 }
@@ -56,13 +62,22 @@ function toggleModal(id) {
 function sanitizeConfName(val) {
     if (val == "") {
         confValidation.value = "crimson"
+        validConfName.value = false
         return
     }
     let regex = /\s/;
-    regex.test(val) ? confValidation.value = "crimson" : confValidation.value = "green"
+    if (regex.test(val)) {
+        confValidation.value = "crimson"
+        validConfName.value = false
+    } else {
+        confValidation.value = "green"
+        validConfName.value = true
+    }
+
 }
 
 const loggerConf = ref({
+    displayName: "",
     confName: "",
     ep: "",
     policy: "",
@@ -74,6 +89,10 @@ const loggerConf = ref({
     interval: 10,
 })
 
+function SendServiceData() {
+    store.createLogger(loggerConf.value)
+}
+
 
 </script>
 
@@ -84,8 +103,8 @@ const loggerConf = ref({
 
                 <h5>{{ value.name }}</h5>
                 <div class="button-bar">
-                    <Button icon="pi pi-database" text size="small" @click="toggleModal(key, value.items)" class="log-button"
-                        severity="help" title="Setup Logger" />
+                    <Button icon="pi pi-database" text size="small" @click="toggleModal(key, value.items)"
+                        class="log-button" severity="help" title="Setup Logger" />
                     <Button icon="pi pi-times" text size="small" @click="stop(key)" class="log-button" severity="danger"
                         title="Drop Monitor" />
 
@@ -113,17 +132,24 @@ const loggerConf = ref({
                 <small id="name">Has to be a unique name without whitespaces</small>
             </div>
             <div class="input-group">
+                <label for="displayName">Display Name</label>
+                <InputText id="displayName" v-model="loggerConf.displayName" placeholder="My Logger" />
+
+            </div>
+            <div class="input-group">
                 <label for="interval">Interval</label>
                 <InputNumber v-model="loggerConf.interval" inputId="interval" suffix=" s" />
 
             </div>
-            <Chip :label="'EP: ' + loggerConf.ep" class="chip" />
-            <Chip :label="'Policy: ' + loggerConf.policy" class="chip" />
-            <Chip :label="'Mode: ' + loggerConf.mode" class="chip" />
-            <Chip :label="'Auth: ' + loggerConf.auth" class="chip" />
+            <div style="margin:10px">
+                <Chip :label="'EP: ' + loggerConf.ep" class="chip" />
+                <Chip :label="'Policy: ' + loggerConf.policy" class="chip" />
+                <Chip :label="'Mode: ' + loggerConf.mode" class="chip" />
+                <Chip :label="'Auth: ' + loggerConf.auth" class="chip" />
+            </div>
 
-
-
+            <Button label="Setup Logger" title="Create a Service in the OS" :disabled="!validConfName"
+                @click="SendServiceData()" />
 
         </Dialog>
 
@@ -193,5 +219,5 @@ h5 {
     font-size: 12px;
     padding: 1px 5px !important;
     margin: 2px;
-    }
+}
 </style>

@@ -480,8 +480,12 @@ export const useClientStore = defineStore("clientStore", {
                     }
                 })
         },
-        createLogger(){
-            SetupLoggingService()
+        createLogger(conf){
+            SetupLoggingService(JSON.stringify(conf))
+            .then(e => {})
+            .catch((err)=> {
+                this.toast = { severity: "error", summary: "Failed to create service", detail: err, life: 5000 }
+            })
         }
     }
 

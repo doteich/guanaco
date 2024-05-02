@@ -28,11 +28,11 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.1 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
+	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
-	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.6.0 => /go/pkg/mod
