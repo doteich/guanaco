@@ -482,7 +482,9 @@ export const useClientStore = defineStore("clientStore", {
         },
         createLogger(conf){
             SetupLoggingService(JSON.stringify(conf))
-            .then(e => {})
+            .then(() => {
+                this.toast = {severity: "success", summary: "Successfully created service", detail: "Access data over the 'Query Logs' tab", life: 5000}
+            })
             .catch((err)=> {
                 this.toast = { severity: "error", summary: "Failed to create service", detail: err, life: 5000 }
             })

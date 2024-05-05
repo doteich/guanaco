@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -51,10 +52,10 @@ func CreateService(c string) error {
 		if len(s) < 3 {
 			continue
 		}
-		if s[2] == config.ConfName {
+		if s[3] == config.ConfName {
 			return errors.New("a config with that name already exists")
 		}
-		id, err := strconv.Atoi(s[0])
+		id, err := strconv.Atoi(s[2])
 		if err != nil {
 			continue
 		}
@@ -65,7 +66,7 @@ func CreateService(c string) error {
 
 	config.Id = i
 
-	folder := fmt.Sprintf("%s/services/%d_guanaco_%s", wd, i, config.ConfName)
+	folder := fmt.Sprintf("%s/services/guanaco_svc_%d_%s", wd, i, config.ConfName)
 
 	if err := os.Mkdir(folder, 0644); err != nil {
 		return err
@@ -75,7 +76,13 @@ func CreateService(c string) error {
 		return err
 	}
 
-	os.WriteFile(folder+"/configs/config.json", []byte(c), 0644)
+	bArr, err := json.Marshal(config)
+
+	if err != nil {
+		return err
+	}
+
+	os.WriteFile(folder+"/configs/config.json", bArr, 0644)
 
 	if err := CopyFiles(wd+"/certs/cert.pem", folder+"/certs/cert.pem"); err != nil {
 		return err
@@ -84,13 +91,32 @@ func CreateService(c string) error {
 		return err
 	}
 
-	cmd := exec.Command(wd + "/bin/guanaco-logging-service-linux")
+	args := []string{"-path", folder}
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	switch runtime.GOOS {
 
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+	case "linux":
+		cmd := exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
+
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Start(); err != nil {
+			return err
+		}
+		svc := fmt.Sprintf("guanaco_svc_%d_%s", i, config.ConfName)
+
+		args := []string{svc, "start"}
+		icmd := exec.Command("service", args...)
+
+		if err := icmd.Start(); err != nil {
+			return err
+		}
+
+	case "windows":
+
+	default:
+		return errors.ErrUnsupported
 	}
 
 	return nil
