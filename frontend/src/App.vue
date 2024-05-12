@@ -61,6 +61,7 @@ const items = [{
 <template>
   <nav>
     <sidenav @click="show"></sidenav>
+    
   </nav>
   <main>
     <header>

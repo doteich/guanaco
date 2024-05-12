@@ -24,11 +24,6 @@ function stop(id) {
     store.stopNodeMonitor(id)
 }
 
-function StartLogger(id) {
-    store.createLogger()
-}
-
-
 const showModal = ref(false)
 const confValidation = ref("crimson")
 const validConfName = ref(false)
@@ -91,6 +86,19 @@ const loggerConf = ref({
 
 function SendServiceData() {
     store.createLogger(loggerConf.value)
+    showModal.value = false
+    loggerConf.value = {
+        displayName: "",
+        confName: "",
+        ep: "",
+        policy: "",
+        mode: "",
+        auth: "",
+        user: "",
+        password: "",
+        monitoredItems: "",
+        interval: 10,
+    }
 }
 
 

@@ -91,29 +91,27 @@ func CreateService(c string) error {
 		return err
 	}
 
-	args := []string{"-path", folder}
+	args := []string{"-path", folder, "-command", "install"}
 
 	switch runtime.GOOS {
 
 	case "linux":
 		cmd := exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
-
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
 		if err := cmd.Start(); err != nil {
 			return err
 		}
-		svc := fmt.Sprintf("guanaco_svc_%d_%s", i, config.ConfName)
-
-		args := []string{svc, "start"}
-		icmd := exec.Command("service", args...)
-
-		if err := icmd.Start(); err != nil {
-			return err
-		}
 
 	case "windows":
+		cmd := exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Start(); err != nil {
+			return err
+		}
 
 	default:
 		return errors.ErrUnsupported
