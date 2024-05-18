@@ -1,4 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
+import { useGeneralStore } from "./generalStore";
 import { AddClient, DisconnectClient, ReconnectClient, GetClients, AppBrowse, ExportBrowseSelection, StartMonitor, StopMonitor, SaveConfigToFile, LoadConfigFromFile, DropClient, SetupLoggingService } from "../../wailsjs/go/main/App"
 
 
@@ -122,7 +123,7 @@ export const useClientStore = defineStore("clientStore", {
 
                 })
                 .catch((err) => {
-                    this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
+                    useGeneralStore().setToast("error", "Failed to Add OPC UA Client", err, 5000)
                 })
         },
         async disconnectClient(id) {
@@ -132,19 +133,14 @@ export const useClientStore = defineStore("clientStore", {
         async reconnect(id) {
             ReconnectClient(id)
         },
-        removeClient(id){
+        removeClient(id) {
             DropClient(Number(id))
-            .then(()=>{
-                this.clients = this.clients.filter(c => c.id != id)
-            })
-            .catch(err => {
-                this.toast = {
-                    severity: "error",
-                    summary: "Remove Error",
-                    detail: err,
-                    life: 3000,
-                }
-            })
+                .then(() => {
+                    this.clients = this.clients.filter(c => c.id != id)
+                })
+                .catch(err => {
+                    useGeneralStore().setToast("error", "Remove Error", err, 5000)
+                })
         },
 
         async getActiveConnections() {
@@ -192,12 +188,7 @@ export const useClientStore = defineStore("clientStore", {
         },
         Browse(nodeId, index) {
             if (this.selectedClient == -1) {
-                this.toast = {
-                    severity: "warn",
-                    summary: "No Client Selected",
-                    detail: "Please select a connected client from the list",
-                    life: 3000,
-                }
+                useGeneralStore().setToast("warn", "No Client Selected", "Please select a connected client from the list", 3000)
                 return
             }
             AppBrowse(this.selectedClient, nodeId)
@@ -245,13 +236,7 @@ export const useClientStore = defineStore("clientStore", {
                     //this.browseResults[0].childs = res
                 })
                 .catch((err) => {
-                    this.toast = {
-                        severity: "error",
-                        summary: "Browse Error",
-                        detail: err,
-                        life: 3000,
-                    }
-                    console.error(err)
+                    useGeneralStore().setToast("error", "Browse Error", err, 3000)
                 })
         },
         ExportBrowsedNodes(nodes) {
@@ -284,21 +269,10 @@ export const useClientStore = defineStore("clientStore", {
 
             ExportBrowseSelection(JSON.stringify(exp), this.clients.find(c => c.id == this.selectedClient)?.name)
                 .then((res) => {
-                    this.toast = {
-                        severity: "success",
-                        summary: "Exported",
-                        detail: "File:" + res + " created",
-                        life: 3000,
-                    }
+                    useGeneralStore().setToast("success", "Exported", "File:" + res + " created", 3000)
                 })
                 .catch((err) => {
-                    this.toast = {
-                        severity: "error",
-                        summary: "Export Error",
-                        detail: err,
-                        life: 3000,
-                    }
-                    console.error(err)
+                    useGeneralStore().setToast("error", "Export Error", err, 3000)
                 })
         },
         CreateNodeMonitor(nodes) {
@@ -334,14 +308,7 @@ export const useClientStore = defineStore("clientStore", {
                     }
                 })
                 .catch(err => {
-                    err => {
-                        this.toast = {
-                            severity: "error",
-                            summary: "Monitor Error",
-                            detail: err,
-                            life: 3000,
-                        }
-                    }
+                    useGeneralStore().setToast("error", "Monitor Error", err, 3000)
                 })
         },
         stopNodeMonitor(id) {
@@ -351,12 +318,7 @@ export const useClientStore = defineStore("clientStore", {
                     delete (this.monitoredItems[id])
                 })
                 .catch(err => {
-                    this.toast = {
-                        severity: "error",
-                        summary: "Monitor Error",
-                        detail: err,
-                        life: 3000,
-                    }
+                    useGeneralStore().setToast("error", "Stop Monitor Error", err, 3000)
                 })
         },
 
@@ -393,20 +355,11 @@ export const useClientStore = defineStore("clientStore", {
             })
             SaveConfigToFile(JSON.stringify(conf))
                 .then(res => {
-                    this.toast = {
-                        severity: "success",
-                        summary: "Config Saved",
-                        detail: `Saved to: ${res}`,
-                        life: 3000,
-                    }
+                    useGeneralStore().setToast("success", "Config Saved", `Saved to: ${res}`, 3000)
+
                 })
                 .catch(err => {
-                    this.toast = {
-                        severity: "error",
-                        summary: "Save Error",
-                        detail: err,
-                        life: 3000,
-                    }
+                    useGeneralStore().setToast("error", "Save Error", err, 3000)
                 })
         },
         loadConfig() {
@@ -422,12 +375,8 @@ export const useClientStore = defineStore("clientStore", {
                     let j = JSON.parse(res)
 
                     if (j.length < 1) {
-                        this.toast = {
-                            severity: "error",
-                            summary: "Load Error ",
-                            detail: "loaded config invalid or empty",
-                            life: 3000,
-                        }
+                        useGeneralStore().setToast("error", "Load Error", "loaded config invalid or empty", 3000)
+
                     }
                     j.forEach(c => {
 
@@ -466,28 +415,25 @@ export const useClientStore = defineStore("clientStore", {
 
                             })
                             .catch((err) => {
-                                this.toast = { severity: "error", summary: "Failed to Add OPC UA Client", detail: err, life: 5000 }
+                                useGeneralStore().setToast("error", "Failed to Add OPC UA Client", err, 3000)
+
                             })
 
                     })
                 })
                 .catch(err => {
-                    this.toast = {
-                        severity: "error",
-                        summary: "Load Error ",
-                        detail: err,
-                        life: 3000,
-                    }
+                    useGeneralStore().setToast("error", "Load Error", err, 3000)
                 })
         },
-        createLogger(conf){
+        createLogger(conf) {
             SetupLoggingService(JSON.stringify(conf))
-            .then(() => {
-                this.toast = {severity: "success", summary: "Successfully created service", detail: "Access data over the 'Query Logs' tab", life: 5000}
-            })
-            .catch((err)=> {
-                this.toast = { severity: "error", summary: "Failed to create service", detail: err, life: 5000 }
-            })
+                .then(() => {
+                    useGeneralStore().setToast("success", "Successfully created service", "Access data over the 'Query Logs' tab", 5000)
+
+                })
+                .catch((err) => {
+                    useGeneralStore().setToast("error", "Failed to create service", err, 5000)
+                })
         }
     }
 
