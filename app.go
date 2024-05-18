@@ -162,6 +162,16 @@ func (a *App) SetupLoggingService(conf string) (bool, error) {
 	if err := utils.CreateService(conf); err != nil {
 		return false, err
 	}
-
 	return true, nil
+}
+
+func (a *App) GetServices() (string, error) {
+
+	bArr, err := utils.GetServices()
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(bArr), nil
 }

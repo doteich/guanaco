@@ -14,6 +14,8 @@ export function ExportBrowseSelection(arg1:string,arg2:string):Promise<string>;
 
 export function GetClients():Promise<Array<machine.ClientInfos>>;
 
+export function GetServices():Promise<string>;
+
 export function LoadConfigFromFile():Promise<string>;
 
 export function ReconnectClient(arg1:number):Promise<void>;

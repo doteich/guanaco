@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, watch } from 'vue';
-import { useClientStore } from './store/clientStore';
+import { useGeneralStore } from './store/generalStore';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import TabMenu from 'primevue/tabmenu';
@@ -9,11 +9,11 @@ import { useRouter } from 'vue-router';
 const toast = useToast();
 const router = useRouter()
 
-import clientView from './views/clientView.vue';
 import sidenav from "./components/sideNav.vue"
 import { storeToRefs } from 'pinia';
 
-const store = useClientStore()
+
+const store = useGeneralStore()
 const { getToast } = storeToRefs(store)
 
 
@@ -23,7 +23,6 @@ onMounted(() => {
 })
 
 watch(getToast, (newToast) => {
-
   toast.add({ severity: newToast.severity, summary: newToast.summary, detail: newToast.detail, life: newToast.life })
 })
 
@@ -42,8 +41,11 @@ const items = [{
   })
   },
   {
-    label: "Log",
-    icon: "pi pi-database"
+    label: "Loggers",
+    icon: "pi pi-database",
+    command: (()=>{
+      router.push("loggers")
+    })
   },
   {
     label: "Query Logs",

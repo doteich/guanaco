@@ -26,6 +26,10 @@ export function GetClients() {
   return window['go']['main']['App']['GetClients']();
 }
 
+export function GetServices() {
+  return window['go']['main']['App']['GetServices']();
+}
+
 export function LoadConfigFromFile() {
   return window['go']['main']['App']['LoadConfigFromFile']();
 }
