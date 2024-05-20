@@ -175,3 +175,24 @@ func (a *App) GetServices() (string, error) {
 
 	return string(bArr), nil
 }
+
+func (a *App) ToggleService(name string, cmd string) (bool, error) {
+
+	if err := utils.ToggleService(name, cmd); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (a *App) GetServiceInfo(name string) (string, error) {
+	conf, err := utils.GetServiceInfos(name)
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	return conf, nil
+}

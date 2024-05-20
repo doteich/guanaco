@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useGeneralStore } from './store/generalStore';
+
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import TabMenu from 'primevue/tabmenu';
@@ -11,15 +12,18 @@ const router = useRouter()
 
 import sidenav from "./components/sideNav.vue"
 import { storeToRefs } from 'pinia';
+import { useClientStore } from './store/clientStore';
 
 
 const store = useGeneralStore()
+const clientStore = useClientStore()
+
 const { getToast } = storeToRefs(store)
 
 
 onMounted(() => {
-  store.listen()
-  store.getActiveConnections()
+  clientStore.listen()
+  clientStore.getActiveConnections()
 })
 
 watch(getToast, (newToast) => {

@@ -3,10 +3,6 @@ import { useClientStore } from '../store/clientStore';
 
 const store = useClientStore()
 
-function browse() {
-    store.Browse()
-}
-
 </script>
 
 <template>

@@ -3,9 +3,11 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 )
 
@@ -36,7 +38,18 @@ func GetServices() ([]byte, error) {
 		buf := bytes.NewBuffer([]byte{})
 		path := fmt.Sprintf("%s/services/%s", wd, dir.Name())
 		args := []string{"-path", path, "-command", "status"}
-		cmd := exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
+
+		var cmd *exec.Cmd
+
+		switch runtime.GOOS {
+		case "linux":
+			cmd = exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
+		case "windows":
+			cmd = exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+		default:
+			return nil, errors.ErrUnsupported
+		}
+
 		cmd.Stdout = buf
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
@@ -71,4 +84,53 @@ func GetServices() ([]byte, error) {
 	}
 
 	return bArr, err
+}
+
+func ToggleService(n string, c string) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	path := fmt.Sprintf("%s/services/%s", wd, n)
+
+	args := []string{"-path", path, "-command", c}
+
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
+	case "windows":
+		cmd = exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+	default:
+		return errors.ErrUnsupported
+	}
+
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetServiceInfos(n string) (string, error) {
+
+	conf := ""
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return conf, err
+	}
+	path := fmt.Sprintf("%s/services/%s/configs/", wd, n)
+
+	bArr, err := os.ReadFile(path + "config.json")
+
+	if err != nil {
+		return conf, err
+	}
+
+	conf = string(bArr)
+
+	return conf, nil
 }

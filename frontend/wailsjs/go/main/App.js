@@ -26,6 +26,10 @@ export function GetClients() {
   return window['go']['main']['App']['GetClients']();
 }
 
+export function GetServiceInfo(arg1) {
+  return window['go']['main']['App']['GetServiceInfo'](arg1);
+}
+
 export function GetServices() {
   return window['go']['main']['App']['GetServices']();
 }
@@ -52,4 +56,8 @@ export function StartMonitor(arg1, arg2, arg3) {
 
 export function StopMonitor(arg1) {
   return window['go']['main']['App']['StopMonitor'](arg1);
+}
+
+export function ToggleService(arg1, arg2) {
+  return window['go']['main']['App']['ToggleService'](arg1, arg2);
 }

@@ -3,7 +3,6 @@ package machine
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -93,8 +92,12 @@ func CreateClientConnection(ctx context.Context, session string, ep string, mode
 	}
 
 	if err := c.Connect(ctx); err != nil {
-		fmt.Println(err)
-		return 0, err
+		if err.Error() == "EOF" {
+			return 0, errors.New("server rejected client connection")
+		} else {
+			return 0, err
+		}
+
 	}
 
 	cons++
