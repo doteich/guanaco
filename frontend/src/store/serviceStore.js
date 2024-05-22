@@ -12,7 +12,7 @@ export const useServiceStore = defineStore("serviceStroe", {
         getServices(state) {
             return state.services
         },
-        getServiceInfos(state){
+        getServiceInfos(state) {
             return state.serviceInfos
         }
     },
@@ -32,7 +32,7 @@ export const useServiceStore = defineStore("serviceStroe", {
                             case 2:
                                 s.severity = "danger"
                         }
-                    
+
                     })
                     this.services = svc
                 })
@@ -40,24 +40,24 @@ export const useServiceStore = defineStore("serviceStroe", {
                     useGeneralStore().setToast("error", "Failed to fetch Services", err, 3000)
                 })
         },
-        toggleService(name, cmd){
-            ToggleService(name,cmd)
-            .then(()=>{
-                this.fetchServices()
-            })
-            .catch((err)=>{
-                useGeneralStore().setToast("error", `Failed to ${cmd} Service"`, err, 3000)
-            })
+        toggleService(name, cmd) {
+            ToggleService(name, cmd)
+                .then(() => {
+                    this.fetchServices()
+                })
+                .catch((err) => {
+                    useGeneralStore().setToast("error", `Failed to ${cmd} Service"`, err, 3000)
+                })
         },
-        fetchServiceInfo(name){
+        fetchServiceInfo(name) {
             GetServiceInfo(name)
-            .then((json)=>{
-                this.serviceInfos = JSON.parse(json)
-            })
-            .catch(err =>{
-                this.serviceInfos = {}
-                useGeneralStore().setToast("error", "Failed to fetch service info", err, 3000)
-            })
+                .then((json) => {
+                    this.serviceInfos = JSON.parse(json)
+                })
+                .catch(err => {
+                    this.serviceInfos = {}
+                    useGeneralStore().setToast("error", "Failed to fetch service info", err, 3000)
+                })
         }
     }
 })
