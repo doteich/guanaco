@@ -196,3 +196,13 @@ func (a *App) GetServiceInfo(name string) (string, error) {
 
 	return conf, nil
 }
+
+func (a *App) DeleteService(name string) (bool, error) {
+
+	if err := utils.DeleteService(name); err != nil {
+		return false, err
+	}
+
+	return true, nil
+
+}

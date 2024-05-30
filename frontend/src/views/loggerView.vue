@@ -6,8 +6,10 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
+import ConfirmPopup from 'primevue/confirmpopup';
 
 import Dialog from 'primevue/dialog';
+import { useConfirm } from "primevue/useconfirm";
 
 import { storeToRefs } from 'pinia';
 
@@ -15,6 +17,8 @@ const store = useServiceStore()
 
 const showInfos = ref(false)
 const showItems = ref(false)
+const deleteServiceDialog = ref(false)
+const selectedService = ref("")
 
 function toggle(name, cmd) {
     store.toggleService(name, cmd)
@@ -31,6 +35,19 @@ function toggleItems() {
     showItems.value = !showItems.value
 }
 
+function toggleDeleteDialog(svc) {
+    selectedService.value = svc
+    deleteServiceDialog.value = true
+}
+
+function deleteService() {
+    store.deleteSelectedService(selectedService.value)
+    setTimeout(() => {
+        deleteServiceDialog.value = false
+    }, 1000)
+
+}
+
 
 onMounted(() => {
     store.fetchServices()
@@ -41,6 +58,8 @@ onMounted(() => {
 
 <template>
     <section class="logger-config">
+
+
         <DataTable :value="store.getServices" class="logger-table">
             <Column field="id" header="Service ID" style="width: 50%;"></Column>
 
@@ -49,20 +68,22 @@ onMounted(() => {
                     <Tag :value="slotProps.data.statusName" :severity="slotProps.data.severity" />
                 </template>
             </Column>
-            <Column :exportable="false">
+            <Column :exportable="false" header="Actions">
                 <template #body="slotProps">
                     <Button icon="pi pi-stop" v-if="slotProps.data.status == 1" text severity="warning"
                         @click="toggle(slotProps.data.id, 'stop')" />
                     <Button icon="pi pi-play" v-else text class="" @click="toggle(slotProps.data.id, 'start')" />
                     <Button icon="pi pi-info" text @click="info(slotProps.data.id)" />
-                    <Button icon="pi pi-times" text severity="danger" @click="" />
+                    <Button icon="pi pi-times" text severity="danger" @click="toggleDeleteDialog(slotProps.data.id)" />
                 </template>
             </Column>
         </DataTable>
 
 
         <Dialog v-model:visible="showInfos" :style="{ width: '50rem' }">
-
+            <template #header>
+                <Button icon="pi pi-arrow-left" size="small" text @click="toggleItems" v-if="showItems" />
+            </template>
             <div class="service-infos" v-if="!showItems">
                 <p> <span class="info-heading">ID</span><span class="info-content">{{ getServiceInfos.id }}</span></p>
                 <p> <span class="info-heading">Endpoint</span><span class="info-content">{{ getServiceInfos.ep }}</span>
@@ -75,23 +96,34 @@ onMounted(() => {
                         }}</span>
                 </p>
                 <p> <span class="info-heading">Items</span><span class="info-content" style="width: 74%;"> {{
-            getServiceInfos.monitoredItems.length }} </span> <Button icon="pi pi-info" size="small" text
+            getServiceInfos.monitoredItems?.length }} </span> <Button icon="pi pi-info" size="small" text
                         @click="toggleItems" /></p>
                 <p> <span class="info-heading">Interval</span><span class="info-content">{{ getServiceInfos.interval
                         }}</span>
                 </p>
-
             </div>
-            <div v-else>
-                <Button icon="pi pi-arrow-left" size="small" text
-                        @click="toggleItems" />
-                <ul>
+            <div v-else class="items-dialog">
+
+                <ul class="items-list">
                     <li v-for="item in getServiceInfos.monitoredItems">{{ item }}</li>
                 </ul>
-            
+            </div>
+        </Dialog>
+
+        <Dialog v-model:visible="deleteServiceDialog" :style="{ width: '40rem' }">
+            <div>
+                <p>Confirm deletion of {{ selectedService }}</p>
+            </div>
+            <div>
+                <Button icon="pi pi-check" label="Confirm" text @click="deleteService()" style="margin-right: 10%;" />
+                <Button icon="pi pi-times" label="Cancel" text severity="danger"
+                    @click="deleteServiceDialog = !deleteServiceDialog" />
             </div>
 
+
         </Dialog>
+
+
 
     </section>
 
@@ -138,5 +170,24 @@ onMounted(() => {
     padding: 5px;
     width: 20%;
     background-color: var(--theme-color-3);
+}
+
+.items-dialog {
+    display: flex;
+    align-items: center;
+}
+
+.items-list {
+    list-style-type: none;
+    width: 100%;
+}
+
+.items-list>li {
+    border-bottom: 1px solid var(--border-color-1);
+    margin: 4px;
+    width: 100%;
+    padding: 2px;
+    text-align: left;
+    font-size: 0.9em;
 }
 </style>

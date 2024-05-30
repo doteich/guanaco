@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { GetServices, ToggleService, GetServiceInfo } from "../../wailsjs/go/main/App"
+import { GetServices, ToggleService, GetServiceInfo, DeleteService } from "../../wailsjs/go/main/App"
 import { useGeneralStore } from "./generalStore"
 
 
@@ -20,7 +20,9 @@ export const useServiceStore = defineStore("serviceStroe", {
         fetchServices() {
             GetServices()
                 .then((json) => {
-                    let svc = JSON.parse(json)
+                    let svc = JSON.parse(json) || []
+                    
+
                     svc.forEach((s) => {
                         switch (s.status) {
                             case 0:
@@ -58,6 +60,17 @@ export const useServiceStore = defineStore("serviceStroe", {
                     this.serviceInfos = {}
                     useGeneralStore().setToast("error", "Failed to fetch service info", err, 3000)
                 })
+        },
+        deleteSelectedService(name){
+            DeleteService(name)
+            .then(()=>{
+                this.fetchServices()
+                useGeneralStore().setToast("success", `Service Deleted`, "Service deleted from runtime", 3000)
+                
+            })
+            .catch((err) =>{
+                useGeneralStore().setToast("error", `Failed to delete Service"`, err, 3000)
+            })
         }
     }
 })

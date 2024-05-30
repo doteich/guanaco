@@ -134,3 +134,37 @@ func GetServiceInfos(n string) (string, error) {
 
 	return conf, nil
 }
+
+func DeleteService(n string) error {
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	path := fmt.Sprintf("%s/services/%s", wd, n)
+
+	args := []string{"-path", path, "-command", "uninstall"}
+
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = exec.Command(wd+"/bin/guanaco-logging-service-linux", args...)
+	case "windows":
+		cmd = exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+	default:
+		return errors.ErrUnsupported
+	}
+
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	if err := os.RemoveAll(path); err != nil {
+		return err
+	}
+
+	return nil
+}
