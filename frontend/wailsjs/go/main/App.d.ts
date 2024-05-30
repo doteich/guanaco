@@ -6,6 +6,8 @@ export function AddClient(arg1:string,arg2:string,arg3:string,arg4:string,arg5:s
 
 export function AppBrowse(arg1:number,arg2:string):Promise<Array<machine.BrowseResult>>;
 
+export function DeleteService(arg1:string):Promise<boolean>;
+
 export function DisconnectClient(arg1:number):Promise<void>;
 
 export function DropClient(arg1:number):Promise<boolean>;

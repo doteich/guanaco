@@ -10,6 +10,10 @@ export function AppBrowse(arg1, arg2) {
   return window['go']['main']['App']['AppBrowse'](arg1, arg2);
 }
 
+export function DeleteService(arg1) {
+  return window['go']['main']['App']['DeleteService'](arg1);
+}
+
 export function DisconnectClient(arg1) {
   return window['go']['main']['App']['DisconnectClient'](arg1);
 }
