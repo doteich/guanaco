@@ -6,10 +6,8 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
-import ConfirmPopup from 'primevue/confirmpopup';
 
 import Dialog from 'primevue/dialog';
-import { useConfirm } from "primevue/useconfirm";
 
 import { storeToRefs } from 'pinia';
 

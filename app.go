@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/pkg/database"
 	"changeme/pkg/machine"
 	"changeme/pkg/utils"
 	"context"
@@ -205,4 +206,13 @@ func (a *App) DeleteService(name string) (bool, error) {
 
 	return true, nil
 
+}
+
+func (a *App) GetUniqueEntries(svc string, t string) ([]string, error) {
+	results, err := database.GetUniqueNodes(svc, t)
+
+	if err != nil {
+		return results, err
+	}
+	return results, nil
 }

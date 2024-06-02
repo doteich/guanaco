@@ -38,6 +38,10 @@ export function GetServices() {
   return window['go']['main']['App']['GetServices']();
 }
 
+export function GetUniqueEntries(arg1) {
+  return window['go']['main']['App']['GetUniqueEntries'](arg1);
+}
+
 export function LoadConfigFromFile() {
   return window['go']['main']['App']['LoadConfigFromFile']();
 }

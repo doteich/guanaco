@@ -20,6 +20,8 @@ export function GetServiceInfo(arg1:string):Promise<string>;
 
 export function GetServices():Promise<string>;
 
+export function GetUniqueEntries(arg1:string):Promise<Array<string>>;
+
 export function LoadConfigFromFile():Promise<string>;
 
 export function ReconnectClient(arg1:number):Promise<void>;

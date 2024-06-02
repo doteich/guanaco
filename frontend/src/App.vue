@@ -51,9 +51,13 @@ const items = [{
       router.push("loggers")
     })
   },
+  
   {
     label: "Query Logs",
-    icon: "pi pi-chart-line"
+    icon: "pi pi-chart-line",
+    command: (()=>{
+      router.push("query")
+    })
   },
   {
     label: "Certs",
