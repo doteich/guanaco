@@ -20,7 +20,9 @@ export function GetServiceInfo(arg1:string):Promise<string>;
 
 export function GetServices():Promise<string>;
 
-export function GetUniqueEntries(arg1:string):Promise<Array<string>>;
+export function GetTimeSeries(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<boolean>;
+
+export function GetUniqueEntries(arg1:string,arg2:string):Promise<Array<string>>;
 
 export function LoadConfigFromFile():Promise<string>;
 

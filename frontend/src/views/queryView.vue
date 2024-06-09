@@ -4,45 +4,85 @@ import { onMounted, ref } from "vue"
 import Dropdown from 'primevue/dropdown';
 import { useServiceStore } from "../store/serviceStore"
 import { useQueryStore } from "../store/queryStore"
-import { storeToRefs } from "pinia";
-import Sidebar from 'primevue/sidebar';
+import Button from 'primevue/button';
+import Calendar from 'primevue/calendar';
+
+
 
 const serviceStore = useServiceStore()
 const queryStore = useQueryStore()
 
+let start = new Date()
+start.setHours(start.getHours() -1)
+
+
 const selectedService = ref("")
+const dateRange = ref([start, new Date()])
+const showMenu = ref(true)
+const selectedNodeId = ref("")
+const selectedNodeName = ref("")
 
 onMounted(() => {
+
     serviceStore.fetchServices()
 })
+
+function toggleMenu() {
+    showMenu.value = !showMenu.value
+}
+
+function getDropdownValues() {
+    queryStore.FetchUniqueValues(selectedService.value?.id, "nodeName")
+    queryStore.FetchUniqueValues(selectedService.value?.id, "nodeId")
+}
+
+function getData(){
+    queryStore.FetchTimeSeriesData(selectedService.value?.id, selectedNodeId.value, selectedNodeName.value, dateRange.value[0].toISOString(), dateRange.value[1].toISOString())
+}
 
 
 </script>
 
 
 <template>
-
     <section>
-
-        <div class="query-menu-bar">
-            <div class="logger-selection">
-                <p>Logger Selection</p>
-                <Dropdown v-model="selectedService" :options="serviceStore.getServices" optionLabel="id"
-                    placeholder="Available Loggers" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
-            </div>
-            <div class="logger-selection">
-                <p>Node Id</p>
-                <Dropdown v-model="selectedService" :options="serviceStore.getServices" optionLabel="id"
-                    placeholder="Available Loggers" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
-            </div>
-            <div class="logger-selection">
-                <p>Node Id</p>
-                <Dropdown v-model="selectedService" :options="serviceStore.getServices" optionLabel="id"
-                    placeholder="Available Loggers" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
-            </div>
-
+        <div style="background-color: var(--theme-color-2);">
+            <Button icon="pi pi-chevron-up" text size="small" @click="toggleMenu()" style="padding: 1.5%"
+                v-if="showMenu" />
+            <Button icon="pi pi-chevron-down" text size="small" @click="toggleMenu()" style="padding: 1.5%" v-else />
         </div>
+        <Transition>
 
+            <div class="query-menu-bar" v-if="showMenu">
+                <div class="logger-selection">
+                    <div class="logger-selection-selector">
+                        <p>Logger Selection</p>
+                        <Dropdown v-model="selectedService" :options="serviceStore.getServices" optionLabel="id"
+                            placeholder="Available Loggers" checkmark :highlightOnSelect="true"
+                            style="border-radius: 0;" @change="getDropdownValues()" />
+                    </div>
+                    <Button icon="pi pi-refresh" size="small" @click="getData()"
+                        style="margin-left: auto; margin-right: 2%; padding: 1.5%; width: fit-content;" />
+                </div>
+                <div class="query-selection">
+                    <div class="query-selection-selector">
+                        <p>Node Id</p>
+                        <Dropdown v-model="selectedNodeId" showClear :options="queryStore.getUniqueNodeIds"
+                            placeholder="Node IDs" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
+                    </div>
+                    <div class="query-selection-selector">
+                        <p>Node Name</p>
+                        <Dropdown v-model="selectedNodeName" showClear :options="queryStore.getUniqueNodeNames"
+                            placeholder="Node Names" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
+                    </div>
+                    <div class="query-selection-selector">
+                        <p>Date Range</p>
+                        <Calendar v-model="dateRange" selectionMode="range" showTime :manualInput="true"
+                            style="border-radius: 0;" />
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </section>
 
 </template>
@@ -52,23 +92,80 @@ onMounted(() => {
     display: flex;
     margin: 0vh 0vw;
     width: 100%;
+    flex-direction: column;
+    background-color: var(--theme-color-2);
+    padding: 10px;
+    border-bottom: 1px solid var(--theme-color-3);
 }
 
 
 .logger-selection {
     display: flex;
-    flex-direction: column;
-    width: fit-content;
-    border: 1px solid var(--theme-color-3);
-    background: var(--theme-color-3);
-    align-items: center;
+    width: 99%;
+    margin: 2px 5px;
+    justify-content: flex-start;
+    align-items: flex-end;
+    width: 100%;
 
 }
 
-.logger-selection>p {
-    margin: 0;
-    padding: 4px;
-    color: var(--theme-color-1);
-    font-weight: bold;
+.logger-selection-selector {
+    width: calc(33% - 5px);
+
+}
+
+.logger-selection-selector>* {
+    width: 100%;
+}
+
+.logger-selection-selector>p {
+    text-align: left;
+}
+.logger-selection-selector > * > span {
+    text-align: left;
+}
+
+
+
+
+.query-selection {
+    display: flex;
+    width: 100%;
+}
+
+.query-selection-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0 5px;
+    width: 33%;
+}
+
+.query-selection-selector>p {
+    text-align: start;
+}
+
+.query-selection-selector>* {
+    border-radius: 0;
+    width: 100%;
+}
+
+.query-selection-selector> * input {
+    border-radius: 0;
+}
+
+.query-selection-selector > * > span {
+    text-align: left;
+}
+
+.v-enter-active,
+.v-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
 }
 </style>
