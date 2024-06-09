@@ -146,7 +146,7 @@ export const useClientStore = defineStore("clientStore", {
         async getActiveConnections() {
             GetClients()
                 .then(res => {
-                    res.forEach((client) => {
+                    res?.forEach((client) => {
                         this.clients.push({
                             id: client.ClientId,
                             name: client.Name,
@@ -162,7 +162,7 @@ export const useClientStore = defineStore("clientStore", {
                     })
                     if (this.selectedClient == -1) {
 
-                        this.selectClient(this.clients[0].id)
+                        this.selectClient(this.clients[0]?.id)
                     }
                 })
         },

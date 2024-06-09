@@ -201,6 +201,7 @@ func (a *App) GetServiceInfo(name string) (string, error) {
 func (a *App) DeleteService(name string) (bool, error) {
 
 	if err := utils.DeleteService(name); err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return false, err
 	}
 
@@ -212,7 +213,18 @@ func (a *App) GetUniqueEntries(svc string, t string) ([]string, error) {
 	results, err := database.GetUniqueNodes(svc, t)
 
 	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return results, err
 	}
 	return results, nil
+}
+
+func (a *App) GetTimeSeries(svc string, nodeId string, nodeName string, start string, end string) (bool, error) {
+	_, err := database.GetTimeSeries(svc, nodeId, nodeName, start, end)
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return false, err
+	}
+	return true, nil
 }

@@ -137,6 +137,7 @@ function drop(){
     flex-direction: column;
     align-items: center;
     height: 100%;
+    border-right: 1px solid grey;
 }
 
 .side-nav-slim {
@@ -145,6 +146,7 @@ function drop(){
     flex-direction: column;
     align-items: center;
     height: 100%;
+    border-right: 1px solid rgb(44, 45, 58);
 }
 
 .client-label {
