@@ -62,7 +62,7 @@ function getData(){
                             style="border-radius: 0;" @change="getDropdownValues()" />
                     </div>
                     <Button icon="pi pi-refresh" size="small" @click="getData()"
-                        style="margin-left: auto; margin-right: 2%; padding: 1.5%; width: fit-content;" />
+                        style="margin-left: auto; margin-right: 2%; padding: 1.5%; width: fit-content;" :disabled="selectedService == ''" />
                 </div>
                 <div class="query-selection">
                     <div class="query-selection-selector">

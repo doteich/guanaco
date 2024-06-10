@@ -68,11 +68,28 @@ func GetTimeSeries(n string, nodeId string, nodeName string, start string, end s
 		return results, err
 	}
 
-	query := fmt.Sprintf(`SELECT * FROM GUANACO WHERE nodeId = '%s' AND ts >= ?`, nodeId)
+	e, err := time.Parse(time.RFC3339, end)
+
+	if err != nil {
+		return results, err
+	}
+
+	query := `SELECT * FROM GUANACO WHERE`
+
+	if nodeName != "" {
+		query = query + fmt.Sprintf(" nodeName = '%s' AND", nodeName)
+	}
+	if nodeId != "" {
+		query = query + fmt.Sprintf(" nodeId = '%s' AND", nodeId)
+	}
+
+	query = query + " ts >= ? AND ts <= ?"
+
+	//query := fmt.Sprintf(`SELECT * FROM GUANACO WHERE nodeId = '%s' AND ts >= ?`, nodeId)
 
 	fmt.Println(query)
 
-	rows, err := db.Query(query, s)
+	rows, err := db.Query(query, s, e)
 
 	if err != nil {
 		return results, err
