@@ -1,5 +1,5 @@
 <p align="center" style="text-align: center">
-  <img src="./assets/logo.png" width="55%" height="55%"><br/>
+  <img src="./assets/logo.png" width="30%"><br/>
 </p>
 <h3>GUANACO</h3>
 <p align="center">
