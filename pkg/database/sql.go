@@ -10,12 +10,12 @@ import (
 )
 
 type Row struct {
-	id       int
-	ts       time.Time
-	nodeName string
-	nodeId   string
-	dataType string
-	value    interface{}
+	Id       int         `json:"id"`
+	Ts       time.Time   `json:"ts"`
+	NodeName string      `json:"nodeName"`
+	NodeId   string      `json:"nodeId"`
+	DataType string      `json:"dataType"`
+	Value    interface{} `json:"value"`
 }
 
 func GetUniqueNodes(n string, t string) ([]string, error) {
@@ -85,10 +85,6 @@ func GetTimeSeries(n string, nodeId string, nodeName string, start string, end s
 
 	query = query + " ts >= ? AND ts <= ?"
 
-	//query := fmt.Sprintf(`SELECT * FROM GUANACO WHERE nodeId = '%s' AND ts >= ?`, nodeId)
-
-	fmt.Println(query)
-
 	rows, err := db.Query(query, s, e)
 
 	if err != nil {
@@ -98,11 +94,11 @@ func GetTimeSeries(n string, nodeId string, nodeName string, start string, end s
 	for rows.Next() {
 		var entry Row
 		rows.Scan(
-			&entry.id, &entry.ts, &entry.nodeName, &entry.nodeId, &entry.dataType, &entry.value,
+			&entry.Id, &entry.Ts, &entry.NodeName, &entry.NodeId, &entry.DataType, &entry.Value,
 		)
-		fmt.Println(entry)
-
+		results = append(results, entry)
 	}
+
 	return results, nil
 
 }

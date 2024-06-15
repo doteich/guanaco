@@ -58,6 +58,10 @@ export function SaveConfigToFile(arg1) {
   return window['go']['main']['App']['SaveConfigToFile'](arg1);
 }
 
+export function SaveResultsAsCSV(arg1) {
+  return window['go']['main']['App']['SaveResultsAsCSV'](arg1);
+}
+
 export function SetupLoggingService(arg1) {
   return window['go']['main']['App']['SetupLoggingService'](arg1);
 }
