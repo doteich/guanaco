@@ -1,171 +1,93 @@
 <script setup>
 import { onMounted, ref } from "vue"
 
-import Dropdown from 'primevue/dropdown';
 import { useServiceStore } from "../store/serviceStore"
 import { useQueryStore } from "../store/queryStore"
-import Button from 'primevue/button';
-import Calendar from 'primevue/calendar';
 
+import queryMenuBar from '../components/queryMenuBar.vue';
+
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Button from 'primevue/button';
 
 
 const serviceStore = useServiceStore()
 const queryStore = useQueryStore()
 
-let start = new Date()
-start.setHours(start.getHours() -1)
+const tHeight = ref(54)
 
 
-const selectedService = ref("")
-const dateRange = ref([start, new Date()])
-const showMenu = ref(true)
-const selectedNodeId = ref("")
-const selectedNodeName = ref("")
+function getDropdownValues(svc) {
+    queryStore.FetchUniqueValues(svc, "nodeName")
+    queryStore.FetchUniqueValues(svc, "nodeId")
+}
+
+function getData(svc, ni, nn, start, end) {
+    console.log(svc, ni, nn, start, end)
+    queryStore.FetchTimeSeriesData(svc, ni, nn, start.toISOString(), end.toISOString())
+}
+
+function setTableHeight(isExpanded) {
+    isExpanded ? tHeight.value = 55 : tHeight.value = 80
+}
+
+
+function saveCSV() {
+    let line = ""
+    let lines = ""
+
+    queryStore.getResults.forEach(el => {
+        for (let key in el) {
+            line += el[key] + ";"
+        }
+        lines += line + "\n"
+        line = ""
+    })
+    queryStore.ExportResults(lines)
+}
 
 onMounted(() => {
-
     serviceStore.fetchServices()
 })
-
-function toggleMenu() {
-    showMenu.value = !showMenu.value
-}
-
-function getDropdownValues() {
-    queryStore.FetchUniqueValues(selectedService.value?.id, "nodeName")
-    queryStore.FetchUniqueValues(selectedService.value?.id, "nodeId")
-}
-
-function getData(){
-    queryStore.FetchTimeSeriesData(selectedService.value?.id, selectedNodeId.value, selectedNodeName.value, dateRange.value[0].toISOString(), dateRange.value[1].toISOString())
-}
-
 
 </script>
 
 
 <template>
     <section>
-        <div style="background-color: var(--theme-color-2);">
-            <Button icon="pi pi-chevron-up" text size="small" @click="toggleMenu()" style="padding: 1.5%"
-                v-if="showMenu" />
-            <Button icon="pi pi-chevron-down" text size="small" @click="toggleMenu()" style="padding: 1.5%" v-else />
+       
+        <queryMenuBar :services="serviceStore.getServices" :node-ids="queryStore.getUniqueNodeIds"
+            :node-names="queryStore.getUniqueNodeNames" @on-reload="getData" @on-select="getDropdownValues"
+            @on-resize="setTableHeight">
+        </queryMenuBar>
+        <div class="query-table">
+            <DataTable :value="queryStore.getResults" :scrollHeight="tHeight + 'vh'" scrollable
+                tableStyle="min-width:92vw">
+                <template #header>
+                    <div style="text-align: left;">
+                        <button style="background: none; border: 0" @click="saveCSV" title="Export results as csv" v-if="queryStore.getResults.length > 0"><i class="pi pi-external-link"></i></button>
+                    </div>
+                </template>
+                <Column field="ts" header="Timestamp"></Column>
+                <Column field="nodeId" header="Node ID"></Column>
+                <Column field="nodeName" header="Node Name"></Column>
+                <Column field="value" header="Value"></Column>
+            </DataTable>
         </div>
-        <Transition>
-
-            <div class="query-menu-bar" v-if="showMenu">
-                <div class="logger-selection">
-                    <div class="logger-selection-selector">
-                        <p>Logger Selection</p>
-                        <Dropdown v-model="selectedService" :options="serviceStore.getServices" optionLabel="id"
-                            placeholder="Available Loggers" checkmark :highlightOnSelect="true"
-                            style="border-radius: 0;" @change="getDropdownValues()" />
-                    </div>
-                    <Button icon="pi pi-refresh" size="small" @click="getData()"
-                        style="margin-left: auto; margin-right: 2%; padding: 1.5%; width: fit-content;" :disabled="selectedService == ''" />
-                </div>
-                <div class="query-selection">
-                    <div class="query-selection-selector">
-                        <p>Node Id</p>
-                        <Dropdown v-model="selectedNodeId" showClear :options="queryStore.getUniqueNodeIds"
-                            placeholder="Node IDs" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
-                    </div>
-                    <div class="query-selection-selector">
-                        <p>Node Name</p>
-                        <Dropdown v-model="selectedNodeName" showClear :options="queryStore.getUniqueNodeNames"
-                            placeholder="Node Names" checkmark :highlightOnSelect="true" style="border-radius: 0;" />
-                    </div>
-                    <div class="query-selection-selector">
-                        <p>Date Range</p>
-                        <Calendar v-model="dateRange" selectionMode="range" showTime :manualInput="true"
-                            style="border-radius: 0;" />
-                    </div>
-                </div>
-            </div>
-        </Transition>
     </section>
 
 </template>
 
 <style>
-.query-menu-bar {
+.query-table {
     display: flex;
-    margin: 0vh 0vw;
-    width: 100%;
-    flex-direction: column;
-    background-color: var(--theme-color-2);
-    padding: 10px;
-    border-bottom: 1px solid var(--theme-color-3);
+    align-items: center;
+    padding: 5px;
+    width: 93vw;
 }
 
-
-.logger-selection {
-    display: flex;
-    width: 99%;
-    margin: 2px 5px;
-    justify-content: flex-start;
-    align-items: flex-end;
-    width: 100%;
-
-}
-
-.logger-selection-selector {
-    width: calc(33% - 5px);
-
-}
-
-.logger-selection-selector>* {
-    width: 100%;
-}
-
-.logger-selection-selector>p {
-    text-align: left;
-}
-.logger-selection-selector > * > span {
-    text-align: left;
-}
-
-
-
-
-.query-selection {
-    display: flex;
-    width: 100%;
-}
-
-.query-selection-selector {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    margin: 0 5px;
-    width: 33%;
-}
-
-.query-selection-selector>p {
-    text-align: start;
-}
-
-.query-selection-selector>* {
-    border-radius: 0;
-    width: 100%;
-}
-
-.query-selection-selector> * input {
-    border-radius: 0;
-}
-
-.query-selection-selector > * > span {
-    text-align: left;
-}
-
-.v-enter-active,
-.v-leave-active {
-    transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-    opacity: 0;
+.p-datatable-header {
+    padding: 5px;
+    background: var(--theme-color-1);
 }
 </style>

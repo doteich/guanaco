@@ -3,4 +3,5 @@ node_modules
 frontend/dist
 *.pem
 /config/
-/services/*
+/services
+/certs

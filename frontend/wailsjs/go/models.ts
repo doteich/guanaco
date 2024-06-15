@@ -1,0 +1,46 @@
+export namespace database {
+	
+	export class Row {
+	    id: number;
+	    // Go type: time
+	    ts: any;
+	    nodeName: string;
+	    nodeId: string;
+	    dataType: string;
+	    value: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Row(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.ts = this.convertValues(source["ts"], null);
+	        this.nodeName = source["nodeName"];
+	        this.nodeId = source["nodeId"];
+	        this.dataType = source["dataType"];
+	        this.value = source["value"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+

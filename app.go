@@ -219,12 +219,31 @@ func (a *App) GetUniqueEntries(svc string, t string) ([]string, error) {
 	return results, nil
 }
 
-func (a *App) GetTimeSeries(svc string, nodeId string, nodeName string, start string, end string) (bool, error) {
-	_, err := database.GetTimeSeries(svc, nodeId, nodeName, start, end)
+func (a *App) GetTimeSeries(svc string, nodeId string, nodeName string, start string, end string) ([]database.Row, error) {
+	results, err := database.GetTimeSeries(svc, nodeId, nodeName, start, end)
 
 	if err != nil {
 		runtime.LogError(a.ctx, err.Error())
-		return false, err
+		return nil, err
 	}
-	return true, nil
+
+	return results, nil
+}
+
+func (a *App) SaveResultsAsCSV(csv string) (string, error) {
+
+	tgt, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{DefaultFilename: "export.csv", DefaultDirectory: "./", Filters: []runtime.FileFilter{{Pattern: "*.csv"}}})
+
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	if err := os.WriteFile(tgt, []byte(csv), 0644); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return "", err
+	}
+
+	return tgt, nil
+
 }
