@@ -1,6 +1,6 @@
 <script setup>
 
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, onUnmounted} from 'vue';
 import { useServiceStore } from "../store/serviceStore"
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -13,10 +13,13 @@ import { storeToRefs } from 'pinia';
 
 const store = useServiceStore()
 
+
 const showInfos = ref(false)
 const showItems = ref(false)
 const deleteServiceDialog = ref(false)
 const selectedService = ref("")
+
+let interval = 0
 
 function toggle(name, cmd) {
     store.toggleService(name, cmd)
@@ -49,6 +52,13 @@ function deleteService() {
 
 onMounted(() => {
     store.fetchServices()
+    interval = setInterval(()=>{
+        store.fetchServices()
+    }, 10000)
+})
+
+onUnmounted(()=>{
+    clearInterval(interval)
 })
 
 
