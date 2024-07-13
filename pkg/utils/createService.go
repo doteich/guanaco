@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 // Config is the runner app config structure.
@@ -106,6 +107,7 @@ func CreateService(c string) error {
 
 	case "windows":
 		cmd := exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
