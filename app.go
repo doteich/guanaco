@@ -1,12 +1,12 @@
 package main
 
 import (
-	"changeme/pkg/database"
-	"changeme/pkg/machine"
-	"changeme/pkg/utils"
 	"context"
 	"encoding/json"
 	"errors"
+	"guanaco/pkg/database"
+	"guanaco/pkg/machine"
+	"guanaco/pkg/utils"
 	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
