@@ -1,6 +1,6 @@
-module changeme
+module guanaco
 
-go 1.18
+go 1.21
 
 require (
 	github.com/gopcua/opcua v0.5.2

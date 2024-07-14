@@ -106,6 +106,7 @@ func CreateService(c string) error {
 
 	case "windows":
 		cmd := exec.Command(wd+"/bin/guanaco-logging-service-windows.exe", args...)
+		setSysProcAttr(cmd)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
