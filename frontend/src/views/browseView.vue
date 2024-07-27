@@ -5,19 +5,31 @@ import { useClientStore } from '../store/clientStore';
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Checkbox from 'primevue/checkbox';
+import ProgressSpinner from 'primevue/progressspinner';
+import Dialog from 'primevue/dialog';
 
 
 const store = useClientStore()
-
+const loading = ref(false)
 const selectedVars = ref([])
-
+const crawlEnabled = ref(false)
+const autoSelect = ref(false)
 const nodeToDrop = ref()
 
-function browseNode(nodeid, id, type) {
+async function browseNode(nodeid, id, type) {
     if (type == "NodeClassVariable") {
         return
     }
-    store.Browse(nodeid, id)
+    loading.value = true
+
+    await store.Browse(nodeid, id, crawlEnabled.value)
+
+    if (autoSelect.value){
+       selectedVars.value = store.getBrowseResults?.filter(e => e.type === 'NodeClassVariable')
+    }
+
+    loading.value = false
 }
 
 function selectNode(name, nodeId, id, dataType) {
@@ -34,11 +46,11 @@ function dropNode() {
     selectedVars.value = selectedVars.value.filter(el => el.nodeId != nodeToDrop.value.nodeId)
 }
 
-function exportSelection(){
+function exportSelection() {
     store.ExportBrowsedNodes(selectedVars.value)
 }
 
-function monitorItems(){
+function monitorItems() {
     store.CreateNodeMonitor(selectedVars.value)
 }
 
@@ -46,46 +58,73 @@ function monitorItems(){
 
 <template>
     <section class="browser">
-        <div v-for="node in store.getBrowseResults" class="browse-node" @click="browseNode(node.nodeId, node.id, node.type)"
+      
+        <Dialog v-model:visible="loading" modal header="Browsing ..." :style="{ width: '25rem' }" :closable="false">
+            <ProgressSpinner />
+        </Dialog>
+        <div v-for="node in store.getBrowseResults" class="browse-node"
+            @click="browseNode(node.nodeId, node.id, node.type)"
             :style="{ 'margin-left': node.id.split('.').length * 20 + 'px' }">
 
             <i class="pi pi-chevron-down" v-if="node.isExpanded"></i>
             <i class="pi pi-chevron-right turn" v-else></i>
             <div class="browse-node-content">
-                <div >
+                <div>
                     <i :class="'pi ' + node.icon" :style="{ 'color': node.color }"></i>
                 </div>
                 <div v-if="node.dataType != ''" class="variable">
-                    <span class="datatype" >{{ node.dataType }}</span>
+                    <span class="datatype">{{ node.dataType }}</span>
                 </div>
                 <p> <span>{{ node.name }}</span> </p>
-               
-                <Button icon="pi pi-plus" size="small" aria-label="Add" @click="selectNode(node.name, node.nodeId, node.id, node.dataType)" text
+
+                <Button icon="pi pi-plus" size="small" aria-label="Add"
+                    @click="selectNode(node.name, node.nodeId, node.id, node.dataType)" text
                     v-if="node.type == 'NodeClassVariable'" />
             </div>
 
         </div>
-        <div class="browse-actions-bar" v-if="selectedVars.length > 0">
-
-            <div class="selection">
-                <DataTable :value="selectedVars" tableStyle="min-width: 5rem" v-model:selection="nodeToDrop"
-                    selectionMode="single" dataKey="name" @rowSelect="dropNode()">
-                    <Column field="name" header="Selection"></Column>
-
-                </DataTable>
+        <div class="browse-actions">
+            <div class="crawler">
+                <Checkbox inputId="crawl" v-model="crawlEnabled" :binary="true" />
+                <label for="crawl">Enable Crawling</label>
+                <i class="pi pi-info-circle" title="Recursive expands node until end of a node is reached"></i>
             </div>
+            <div class="crawler">
+                <Checkbox inputId="auto" v-model="autoSelect" :binary="true" />
+                <label for="auto">Auto Select Tags</label>
+                
+            </div>
+            <div v-if="selectedVars.length > 0" class="browse-actions-bar">
+                <div class="selection">
+                    <DataTable :value="selectedVars" tableStyle="min-width: 5rem" v-model:selection="nodeToDrop"
+                        selectionMode="single" dataKey="name" @rowSelect="dropNode()">
+                        <Column field="name" header="Selection"></Column>
 
-            <Button icon="pi pi-eye" size="small" aria-label="Add" label="Monitor Selection" raised @click="monitorItems()"/>
-            <Button icon="pi pi-file" size="small" aria-label="Add" @click="exportSelection()"
-                label="Export Node-IDs" raised />
+                    </DataTable>
+                </div>
 
+                <Button icon="pi pi-eye" size="small" aria-label="Add" label="Monitor Selection" raised
+                    @click="monitorItems()" />
+                <Button icon="pi pi-file" size="small" aria-label="Add" @click="exportSelection()"
+                    label="Export Node-IDs" raised/>
+            </div>
         </div>
     </section>
 </template>
 <style>
+.crawler {
+    display: flex;
+    align-items: center;
+    margin: 5px 0
+}
+
+.crawler>label {
+    margin: 0 10px
+}
+
 .browser {
     margin-top: 30px;
-   
+
 }
 
 .browse-node {
@@ -98,14 +137,14 @@ function monitorItems(){
     margin: 10px;
     background-color: var(--theme-color-1);
     width: 60vw;
- 
+
 }
 
 .browse-node>i {
     margin-right: 5px;
 }
 
-.variable{
+.variable {
     background: var(--theme-color-3);
     width: 5%;
 }
@@ -153,10 +192,15 @@ i {
     padding: 1px 3px;
 }
 
-.browse-actions-bar {
+
+.browse-actions {
     position: fixed;
     right: 2vw;
     bottom: 2vh;
+}
+
+.browse-actions-bar {
+
     display: flex;
     flex-direction: column;
     max-height: 80vh;
@@ -189,14 +233,14 @@ td {
 
 }
 
-.datatype{
+.datatype {
     font-size: 11px;
     color: var(--theme-color-2);
-  
+
     font-weight: bold;
     border-radius: 4px;
     padding: 2px;
-    
+
 }
 
 @keyframes fadein {
