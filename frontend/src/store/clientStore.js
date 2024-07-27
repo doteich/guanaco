@@ -186,58 +186,70 @@ export const useClientStore = defineStore("clientStore", {
                 this.selectedClient = id
             }
         },
-        Browse(nodeId, index) {
-            if (this.selectedClient == -1) {
-                useGeneralStore().setToast("warn", "No Client Selected", "Please select a connected client from the list", 3000)
+        async Browse(nodeId, index, crawl) {
+            try {
+               
+                if (this.selectedClient == -1) {
+                    useGeneralStore().setToast("warn", "No Client Selected", "Please select a connected client from the list", 3000)
+                    return
+                }
+
+                let toCrawl = []
+
+                let res = await AppBrowse(this.selectedClient, nodeId)
+                let idc = index.split(".").map(Number)
+                let branch = this.browseResults
+
+
+                for (let level of idc) {
+                    if (branch[level] && branch[level].childs) {
+                        branch = branch[level].childs;
+                    } else {
+                        return;
+                    }
+                }
+                //
+                if (branch.length > 0) {
+                    branch.length = 0
+                    return
+                }
+
+                res.forEach((node, i) => {
+
+                    let data = {
+                        name: node.Name,
+                        nodeId: node.NodeId,
+                        type: node.Type,
+                        dataType: node.DataType,
+                        icon: "pi-folder",
+                        id: index + "." + i,
+                        childs: []
+                    }
+
+                    if (node.Type == "NodeClassObject") {
+                        data.icon = "pi-folder"
+                        data.color = "var(--theme-color-3)"
+                        toCrawl.push(data)
+                    } else {
+                        data.icon = "pi-tag"
+                        data.color = "rgb(231, 9, 120)"
+                    }
+                    branch.push(data)
+
+                })
+
+                if(crawl){
+                    for(let e of toCrawl){
+                        
+                        await this.Browse(e.nodeId, e.id, crawl)
+                    }
+                }
+             
+
+            } catch (err) {
+                useGeneralStore().setToast("error", "Browse Error", err, 3000)
                 return
             }
-            AppBrowse(this.selectedClient, nodeId)
-                .then((res) => {
-                    let idc = index.split(".").map(Number)
-                    let branch = this.browseResults
-
-
-                    for (const level of idc) {
-                        if (branch[level] && branch[level].childs) {
-                            branch = branch[level].childs;
-                        } else {
-                            return;
-                        }
-                    }
-                    if (branch.length > 0) {
-
-                        branch.length = 0
-                        return
-                    }
-
-                    res.forEach((node, i) => {
-
-                        let data = {
-                            name: node.Name,
-                            nodeId: node.NodeId,
-                            type: node.Type,
-                            dataType: node.DataType,
-                            icon: "pi-folder",
-                            id: index + "." + i,
-                            childs: []
-                        }
-
-                        if (node.Type == "NodeClassObject") {
-                            data.icon = "pi-folder"
-                            data.color = "var(--theme-color-3)"
-                        } else {
-                            data.icon = "pi-tag"
-                            data.color = "rgb(231, 9, 120)"
-                        }
-
-                        branch.push(data)
-                    })
-
-                    //this.browseResults[0].childs = res
-                })
-                .catch((err) => {
-                    useGeneralStore().setToast("error", "Browse Error", err, 3000)
-                })
         },
         ExportBrowsedNodes(nodes) {
 
