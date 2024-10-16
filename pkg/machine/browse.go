@@ -54,10 +54,6 @@ func BrowseNodes(ctx context.Context, cid int, nid string) ([]BrowseResult, erro
 	}
 	refs = append(refs, childs...)
 
-	if err != nil {
-		return nil, err
-	}
-
 	res := make([]BrowseResult, 0)
 
 	for _, r := range refs {
@@ -105,8 +101,11 @@ func BrowseNodes(ctx context.Context, cid int, nid string) ([]BrowseResult, erro
 				t = "f32"
 			case id.Double:
 				t = "f64"
+			case 0:
+				nc = ua.NodeClassObject
 			default:
-				t = dt[0].Value.NodeID().String()
+				t = "Misc"
+				//t = dt[0].Value.NodeID().String()
 			}
 		}
 

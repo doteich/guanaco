@@ -59,7 +59,7 @@ function monitorItems() {
 <template>
     <section class="browser">
       
-        <Dialog v-model:visible="loading" modal header="Browsing ..." :style="{ width: '25rem' }" :closable="false">
+        <Dialog v-model:visible="loading" modal header="Browsing ..." :style="{ width: '25rem' }">
             <ProgressSpinner />
         </Dialog>
         <div v-for="node in store.getBrowseResults" class="browse-node"
@@ -76,7 +76,6 @@ function monitorItems() {
                     <span class="datatype">{{ node.dataType }}</span>
                 </div>
                 <p> <span>{{ node.name }}</span> </p>
-
                 <Button icon="pi pi-plus" size="small" aria-label="Add"
                     @click="selectNode(node.name, node.nodeId, node.id, node.dataType)" text
                     v-if="node.type == 'NodeClassVariable'" />
