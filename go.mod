@@ -3,8 +3,10 @@ module guanaco
 go 1.21
 
 require (
+
 	github.com/gopcua/opcua v0.5.3
-	github.com/wailsapp/wails/v2 v2.8.1
+	github.com/wailsapp/wails/v2 v2.9.2
+
 	modernc.org/sqlite v1.33.1
 )
 
@@ -33,13 +35,13 @@ require (
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/wailsapp/go-webview2 v1.0.10 // indirect
+	github.com/wailsapp/go-webview2 v1.0.16 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
