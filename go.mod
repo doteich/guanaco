@@ -3,7 +3,7 @@ module guanaco
 go 1.21
 
 require (
-	github.com/gopcua/opcua v0.5.2
+	github.com/gopcua/opcua v0.5.3
 	github.com/wailsapp/wails/v2 v2.8.1
 	modernc.org/sqlite v1.33.1
 )
