@@ -1,12 +1,11 @@
 module guanaco
 
 go 1.21
+toolchain go1.22.5
 
 require (
-
-	github.com/gopcua/opcua v0.5.3
+	github.com/gopcua/opcua v0.6.1
 	github.com/wailsapp/wails/v2 v2.9.2
-
 	modernc.org/sqlite v1.33.1
 )
 
@@ -38,7 +37,7 @@ require (
 	github.com/wailsapp/go-webview2 v1.0.16 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
+	golang.org/x/exp v0.0.0-20241204233417-43b7b7cde48d // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
